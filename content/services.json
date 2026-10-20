@@ -1,0 +1,645 @@
+[
+  {
+    "slug": "3d-lidar",
+    "meta": {
+      "title": "3D & LIDAR Annotation — Diraflow",
+      "description": "Expert 3D and LIDAR annotation services for AI training — point cloud annotation, 3D object detection, semantic segmentation, and autonomous vehicle perception with robotics specialists.",
+      "ogTitle": "3D & LIDAR Annotation — Diraflow",
+      "ogDescription": null,
+      "ogType": "website",
+      "ogUrl": null,
+      "ogImage": null,
+      "canonical": null
+    },
+    "head": {
+      "label": "Specialized expertise",
+      "title": "3D &amp; LIDAR <em>Annotation</em>",
+      "intro": "Precision 3D object detection, point cloud segmentation, LIDAR annotation, and sensor fusion — from roboticists and autonomous systems specialists with deep domain expertise."
+    },
+    "back": {
+      "href": "/solutions",
+      "label": "← Back to Solutions"
+    },
+    "types": {
+      "label": "Our annotation types",
+      "heading": "Complete <em>3D &amp; LIDAR annotation</em> coverage",
+      "intro": "Nine specialized annotation types covering every 3D and LIDAR AI use case — from point cloud segmentation to autonomous vehicle perception.",
+      "items": [
+        {
+          "reverse": false,
+          "title": "📦 3D Bounding Box Annotation",
+          "image": {
+            "src": "/3d annotation/object detection.png",
+            "alt": "3D bounding box annotation"
+          },
+          "description": "3D bounding box annotation labels objects with precise 3D cuboid boundaries in point clouds and 3D scenes. Annotators mark object position, dimensions, and orientation in 3D space, handling occlusion, varying scales, and complex spatial relationships. Essential for autonomous vehicle perception, robotics, and 3D scene understanding systems requiring precise spatial object localization.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle object detection, robot navigation, 3D scene understanding, augmented reality object placement, drone perception systems, industrial inspection, and 3D object tracking."
+        },
+        {
+          "reverse": true,
+          "title": "☁️ LIDAR Point Cloud Segmentation",
+          "image": {
+            "src": "/3d annotation/lidar-annotation.png",
+            "alt": "Point cloud segmentation"
+          },
+          "description": "Point cloud segmentation assigns semantic labels to individual 3D points — ground, vehicles, pedestrians, buildings, vegetation, etc. Annotators classify millions of points with precision, creating dense 3D scene understanding. Critical for autonomous driving, robotics, and LiDAR-based mapping systems that require comprehensive scene understanding at the point level.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle perception, 3D mapping and SLAM, robot navigation, urban scene understanding, drone data processing, industrial 3D scanning, and LIDAR-based surveillance."
+        },
+        {
+          "reverse": false,
+          "title": "🎯 LIDAR Object Detection & Tracking",
+          "image": {
+            "src": "/3d annotation/point cloud tracking.png",
+            "alt": "LIDAR object detection"
+          },
+          "description": "LIDAR object detection identifies and locates objects in 3D point clouds with precise 3D boxes and trajectories. Annotators mark object boundaries, classify types, and maintain consistent IDs across temporal sequences for tracking. Enables autonomous vehicles and robots to detect, classify, and track moving objects with high accuracy in all weather conditions.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle perception, multi-object tracking, pedestrian detection, vehicle classification, weather-robust detection, robotics object tracking, and traffic monitoring systems."
+        },
+        {
+          "reverse": true,
+          "title": "🏗️ 3D Semantic Segmentation",
+          "image": {
+            "src": "/3d annotation/3d semantic.jpg",
+            "alt": "3D semantic segmentation"
+          },
+          "description": "3D semantic segmentation labels all points in a scene with semantic classes — road, sidewalk, buildings, poles, vegetation, sky. Annotators classify dense point clouds with pixel-perfect accuracy, understanding the complete spatial environment. Essential for autonomous vehicles, 3D mapping, urban planning analysis, and applications requiring comprehensive scene understanding.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous driving scene understanding, 3D mapping and reconstruction, urban planning and analysis, building reconstruction, forestry mapping, geological surveys, and detailed environment modeling."
+        },
+        {
+          "reverse": false,
+          "title": "🔀 3D Instance Segmentation",
+          "image": {
+            "src": "/3d annotation/3d instance.jpeg",
+            "alt": "3D instance segmentation"
+          },
+          "description": "3D instance segmentation separates individual objects in point clouds, assigning unique identifiers to each instance. Annotators distinguish between multiple vehicles, buildings, or items in the same scene, creating separate masks for each. Critical for multi-object understanding, autonomous systems that must track individual entities, and applications requiring fine-grained object-level analysis.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle multi-vehicle tracking, 3D object inventory systems, robot manipulation and grasping, warehouse automation, building component identification, and detailed scene understanding."
+        },
+        {
+          "reverse": true,
+          "title": "🛣️ Road & Lane Annotation",
+          "image": {
+            "src": "/3d annotation/road and lane.png",
+            "alt": "Road and lane annotation"
+          },
+          "description": "Road and lane annotation marks road boundaries, lane markings, and drivable surfaces in 3D point clouds. Annotators identify lane divisions, road edges, intersections, and driving areas with high precision. Essential for autonomous vehicle navigation, path planning, and understanding road infrastructure at scale across diverse geographic regions and conditions.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle navigation, HD map creation, lane detection training, path planning systems, autonomous truck systems, traffic pattern analysis, and road maintenance planning."
+        }
+      ]
+    },
+    "quality": {
+      "label": "Why Diraflow",
+      "heading": "3D &amp; LIDAR annotation <em>precision</em> that<br/>powers autonomous systems",
+      "intro": "We employ roboticists, autonomous systems engineers, and 3D geometry specialists who understand spatial relationships and LIDAR sensor characteristics. Rigorous quality checks ensure 3D boxes, point classifications, and multi-sensor alignments meet production standards.",
+      "bad": {
+        "label": "❌ Commodity annotation",
+        "heading": "What you get elsewhere",
+        "items": [
+          "Generalist workers unfamiliar with 3D geometry or LIDAR data",
+          "Poor handling of occlusion, scale, and complex 3D relationships",
+          "No understanding of sensor characteristics or fusion requirements",
+          "Inaccurate 3D boxes, orientation, and temporal consistency",
+          "No audit trails or 3D quality verification"
+        ]
+      },
+      "good": {
+        "label": "✦ Diraflow standard",
+        "heading": "What you get with us",
+        "items": [
+          "Roboticists and 3D geometry specialists with autonomous systems expertise",
+          "Expert handling of occlusion, scale, and complex 3D spatial relationships",
+          "Deep LIDAR sensor knowledge and multi-sensor fusion experience",
+          "Precise 3D boxes, orientation, and consistent temporal tracking",
+          "Full audit trails, 3D validation, and detailed sensor fusion QA"
+        ]
+      }
+    },
+    "cta": {
+      "id": "get-a-quote",
+      "label": "Ready to start?",
+      "heading": "Tell us about <em>your project</em>",
+      "text": "Send us details about your 3D and LIDAR annotation needs and we'll provide a tailored proposal — scope, timeline, and pricing — within one business day.",
+      "bullets": [
+        {
+          "icon": "✉",
+          "text": "contact@diraflowai.com",
+          "href": "mailto:contact@diraflowai.com"
+        },
+        {
+          "icon": "⏱",
+          "text": "Response within 1 business day",
+          "href": null
+        },
+        {
+          "icon": "🔒",
+          "text": "NDAs signed before project discussion",
+          "href": null
+        },
+        {
+          "icon": "🚀",
+          "text": "Projects start within 1–2 weeks",
+          "href": null
+        }
+      ],
+      "form": {
+        "title": "Send us a brief",
+        "intro": "Include annotation type, data format, and timeline.",
+        "action": "https://formspree.io/f/xnjllewe",
+        "subject": "3D & LIDAR Annotation Enquiry — Diraflow",
+        "selectLabel": "Annotation type *",
+        "selectPlaceholder": "Select annotation type…",
+        "options": [
+          "3D Bounding Box",
+          "Point Cloud Segmentation",
+          "LIDAR Object Detection",
+          "3D Semantic Segmentation",
+          "3D Instance Segmentation",
+          "Road & Lane Annotation",
+          "3D Pose & Orientation",
+          "Multi-Sensor Fusion",
+          "LIDAR Intensity & Reflectivity",
+          "Multiple types"
+        ],
+        "briefPlaceholder": "Data format, point cloud size, scene complexity, quality requirements…",
+        "submit": "Send enquiry →"
+      }
+    }
+  },
+  {
+    "slug": "audio-annotation",
+    "meta": {
+      "title": "Audio Annotation — Diraflow",
+      "description": "Expert audio annotation services for AI training — speech transcription, speaker diarization, emotion detection, and audio event labeling with specialist linguists and audio engineers.",
+      "ogTitle": "Audio Annotation — Diraflow",
+      "ogDescription": null,
+      "ogType": "website",
+      "ogUrl": null,
+      "ogImage": null,
+      "canonical": null
+    },
+    "head": {
+      "label": "Specialized expertise",
+      "title": "Audio <em>Annotation</em>",
+      "intro": "Precision speech transcription, speaker identification, emotion detection, and audio event labeling — from linguists and audio engineers with domain expertise."
+    },
+    "back": {
+      "href": "/solutions",
+      "label": "← Back to Solutions"
+    },
+    "types": {
+      "label": "Our annotation types",
+      "heading": "Complete <em>audio annotation</em> coverage",
+      "intro": "Eight specialized annotation types covering every audio AI use case — from transcription to speaker analysis and emotion detection.",
+      "items": [
+        {
+          "reverse": false,
+          "title": "🎤 Speech Transcription & ASR",
+          "image": {
+            "src": "/audio annotation/audio-speech-transcription.png",
+            "alt": "Speech transcription annotation"
+          },
+          "description": "Speech transcription converts audio speech into text with high accuracy. This annotation captures exact spoken content, handling accents, dialects, technical terminology, and contextual nuances. Our linguists transcribe with strict adherence to style guides, capturing punctuation, capitalization, and speaker intent to create training data for Automatic Speech Recognition (ASR) systems.",
+          "useCases": "<strong>Common use cases:</strong> Transcription service training, meeting transcription systems, voice assistant development, accessibility caption generation, customer service call analysis, interview archival, and multilingual speech understanding."
+        },
+        {
+          "reverse": true,
+          "title": "👥 Speaker Diarization & Identification",
+          "image": {
+            "src": "/audio annotation/audio-speaker-diarization.png",
+            "alt": "Speaker diarization annotation"
+          },
+          "description": "Speaker diarization segments audio to identify who spoke and when, while speaker identification classifies or verifies specific speakers. Annotators mark speaker transitions, identify overlapping speech, and assign speaker labels based on voice characteristics. Essential for understanding conversational dynamics, multi-party interactions, and building speaker-aware AI systems.",
+          "useCases": "<strong>Common use cases:</strong> Meeting transcription with speaker attribution, conference call analysis, podcast segmentation, interview processing, biometric speaker authentication, dialogue system training, and forensic audio analysis."
+        },
+        {
+          "reverse": false,
+          "title": "😊 Emotion & Sentiment Detection",
+          "image": {
+            "src": "/audio annotation/audio-emotion-sentiment.png",
+            "alt": "Emotion detection annotation"
+          },
+          "description": "Emotion detection annotates the emotional state conveyed in speech — joy, anger, sadness, frustration, neutrality, etc. Sentiment annotation captures overall speaker attitude (positive/negative/neutral). Our specialists identify emotional cues through tone, prosody, and speech patterns, providing ground truth for models learning emotional AI understanding and empathetic response systems.",
+          "useCases": "<strong>Common use cases:</strong> Customer service sentiment analysis, mental health monitoring systems, chatbot emotion awareness training, content moderation for toxic tone detection, user experience research, and conversational AI personality development."
+        },
+        {
+          "reverse": true,
+          "title": "🔊 Audio Event Detection & Tagging",
+          "image": {
+            "src": "/audio annotation/audio-event-detection.png",
+            "alt": "Audio event detection"
+          },
+          "description": "Audio event detection identifies and locates specific sounds within audio files — breaking glass, dog barks, door slams, music, applause, machinery sounds, etc. Annotators mark temporal boundaries and classify event types with high precision. Critical for environmental audio understanding, safety monitoring, and context-aware audio systems that must react to acoustic events.",
+          "useCases": "<strong>Common use cases:</strong> Environmental sound classification, security system audio alerts, urban sound monitoring, wildlife acoustic monitoring, industrial equipment fault detection, emergency service dispatch automation, and accessibility ambient awareness systems."
+        },
+        {
+          "reverse": false,
+          "title": "🎵 Music & Genre Classification",
+          "image": {
+            "src": "/audio annotation/audio-music-genre.png",
+            "alt": "Music genre classification"
+          },
+          "description": "Music classification assigns genre, mood, tempo, and instrument tags to audio tracks. Annotators categorize music across hierarchical taxonomies — from broad genres (rock, jazz, classical) to sub-genres and stylistic attributes. This enables music streaming platforms to build recommendation systems and content discovery engines that understand musical taxonomy.",
+          "useCases": "<strong>Common use cases:</strong> Music streaming recommendation systems, DJ automation, playlist generation, music licensing and rights management, content ID systems, music discovery algorithms, and audio mood-based playlist curation."
+        },
+        {
+          "reverse": true,
+          "title": "🌍 Language Identification & Dialect",
+          "image": {
+            "src": "/audio annotation/audio-language-identification.png",
+            "alt": "Language identification"
+          },
+          "description": "Language identification classifies which language is being spoken, while dialect annotation captures regional and national variations. Annotators tag language boundaries in multilingual audio, identify specific dialects (British English, Mexican Spanish, Mandarin, etc.), and note code-switching. Essential for multilingual speech systems, automatic routing, and culturally-aware AI applications.",
+          "useCases": "<strong>Common use cases:</strong> Multilingual speech recognition routing, international customer service automation, language learning applications, linguistic research and corpus building, content moderation for non-English audio, and global voice interface localization."
+        }
+      ]
+    },
+    "quality": {
+      "label": "Why Diraflow",
+      "heading": "Audio annotation <em>precision</em> that<br/>powers speech AI",
+      "intro": "We employ linguists, audio engineers, and speech specialists who understand acoustic nuance and linguistic context. Rigorous quality checks ensure transcriptions, emotion labels, and event detection meet production standards.",
+      "bad": {
+        "label": "❌ Commodity annotation",
+        "heading": "What you get elsewhere",
+        "items": [
+          "Generalist workers unfamiliar with linguistics or audio",
+          "Poor handling of accents, dialects, and technical terms",
+          "No inter-annotator agreement or consistency checks",
+          "Transcription errors, misclassifications, and low accuracy",
+          "No audit trails or quality reporting"
+        ]
+      },
+      "good": {
+        "label": "✦ Diraflow standard",
+        "heading": "What you get with us",
+        "items": [
+          "Linguists and audio engineers with specialized expertise",
+          "Expert handling of multilingual, accent, and dialect variation",
+          "IAA monitoring and calibration on every project",
+          "High-accuracy transcription, classification, and event marking",
+          "Full audit trails, versioning, and detailed QA reports"
+        ]
+      }
+    },
+    "cta": {
+      "id": "get-a-quote",
+      "label": "Ready to start?",
+      "heading": "Tell us about <em>your project</em>",
+      "text": "Send us details about your audio annotation needs and we'll provide a tailored proposal — scope, timeline, and pricing — within one business day.",
+      "bullets": [
+        {
+          "icon": "✉",
+          "text": "contact@diraflowai.com",
+          "href": "mailto:contact@diraflowai.com"
+        },
+        {
+          "icon": "⏱",
+          "text": "Response within 1 business day",
+          "href": null
+        },
+        {
+          "icon": "🔒",
+          "text": "NDAs signed before project discussion",
+          "href": null
+        },
+        {
+          "icon": "🚀",
+          "text": "Projects start within 1–2 weeks",
+          "href": null
+        }
+      ],
+      "form": {
+        "title": "Send us a brief",
+        "intro": "Include annotation type, audio duration, and timeline.",
+        "action": "https://formspree.io/f/xnjllewe",
+        "subject": "Audio Annotation Enquiry — Diraflow",
+        "selectLabel": "Annotation type *",
+        "selectPlaceholder": "Select annotation type…",
+        "options": [
+          "Speech Transcription",
+          "Speaker Diarization",
+          "Emotion & Sentiment Detection",
+          "Audio Event Detection",
+          "Music & Genre Classification",
+          "Language Identification",
+          "Accent & Speech Quality",
+          "Phonetic & Prosody",
+          "Multiple types"
+        ],
+        "briefPlaceholder": "Audio duration, domain, quality requirements…",
+        "submit": "Send enquiry →"
+      }
+    }
+  },
+  {
+    "slug": "nlp-annotation",
+    "meta": {
+      "title": "NLP Annotation — Diraflow",
+      "description": "Expert NLP annotation services for AI training — text classification, named entity recognition, sentiment analysis, intent detection, and dialogue annotation with linguistics specialists.",
+      "ogTitle": "NLP Annotation — Diraflow",
+      "ogDescription": null,
+      "ogType": "website",
+      "ogUrl": null,
+      "ogImage": null,
+      "canonical": null
+    },
+    "head": {
+      "label": "Specialized expertise",
+      "title": "NLP <em>Annotation</em>",
+      "intro": "Power your AI with high-quality NLP annotation — text classification, named entity recognition, sentiment analysis, intent detection, and dialogue annotation from linguistics specialists."
+    },
+    "back": {
+      "href": "/solutions",
+      "label": "← Back to Solutions"
+    },
+    "types": {
+      "label": "Our annotation types",
+      "heading": "Complete <em>NLP annotation</em> coverage",
+      "intro": "Nine specialized annotation types covering every NLP AI use case — from text classification to conversational AI and content moderation.",
+      "items": [
+        {
+          "reverse": false,
+          "title": "📂 Text Classification & Categorization",
+          "image": {
+            "src": "/npl/nlp-text-classification.png",
+            "alt": "Text classification"
+          },
+          "description": "Text classification assigns topic, intent, priority, and domain labels to documents, emails, support tickets, and web content. Annotators categorize text with high accuracy, capturing thematic intent and business relevance. Essential for routing systems, content management, and applications requiring automatic text organization and relevance scoring.",
+          "useCases": "<strong>Common use cases:</strong> Email spam filtering and routing, support ticket prioritization, content moderation and categorization, document classification, news topic tagging, sentiment-based routing, and business process automation."
+        },
+        {
+          "reverse": true,
+          "title": "🏷️ Named Entity Recognition (NER)",
+          "image": {
+            "src": "/npl/nlp-named-entity-recognition.png",
+            "alt": "Named entity recognition"
+          },
+          "description": "Named entity recognition identifies and labels entities in text — people, locations, organizations, dates, products, medical terms, and financial instruments. Annotators mark entity boundaries and types with precision, handling ambiguous references and cross-domain contexts. Critical for information extraction, knowledge graph construction, and applications requiring detailed entity understanding.",
+          "useCases": "<strong>Common use cases:</strong> Resume and job description parsing, biomedical entity extraction, financial document analysis, knowledge graph building, person and organization identification, product mention detection, and domain-specific information extraction."
+        },
+        {
+          "reverse": false,
+          "title": "😊 Sentiment & Emotion Analysis",
+          "image": {
+            "src": "/npl/nlp-sentiment-emotion.png",
+            "alt": "Sentiment analysis"
+          },
+          "description": "Sentiment annotation captures polarity — positive, negative, neutral — and emotion tagging detects fine-grained emotional states from text. Annotators assess customer sentiment in reviews, social media, and feedback with nuance, capturing sarcasm, mixed sentiments, and domain-specific context. Essential for brand monitoring, customer satisfaction analysis, and applications requiring emotional intelligence.",
+          "useCases": "<strong>Common use cases:</strong> Customer review sentiment scoring, social media brand monitoring, customer feedback analysis, product reputation management, employee sentiment tracking, market research analysis, and emotion-aware personalization systems."
+        },
+        {
+          "reverse": false,
+          "title": "💬 Conversation & Dialogue Annotation",
+          "image": {
+            "src": "/npl/nlp-dialogue-annotation.png",
+            "alt": "Dialogue annotation"
+          },
+          "description": "Dialogue annotation captures multi-turn conversations with context tracking, speaker roles, intent sequences, and response quality evaluation. Annotators analyze conversational dynamics, coreference resolution, and discourse structure. Essential for conversational AI, dialogue system training, and applications requiring nuanced understanding of multi-party interactions.",
+          "useCases": "<strong>Common use cases:</strong> Chatbot and dialogue system training, conversational AI evaluation, customer service interaction analysis, meeting transcription quality control, dialogue coherence assessment, and empathy-aware conversational agent development."
+        },
+        {
+          "reverse": true,
+          "title": "🛡️ Content Moderation & Toxicity Detection",
+          "image": {
+            "src": "/npl/nlp-content-moderation.png",
+            "alt": "Content moderation"
+          },
+          "description": "Content moderation identifies harmful, offensive, or policy-violating language — hate speech, harassment, misinformation, explicit content. Annotators apply nuanced judgment, understanding context, culture, and intent. Essential for safe online platforms, spam detection, and applications requiring content quality and safety assurance.",
+          "useCases": "<strong>Common use cases:</strong> Social media content filtering, toxicity and hate speech detection, harassment prevention, misinformation flagging, brand safety for advertising, platform policy enforcement, and online community safety systems."
+        },
+        {
+          "reverse": false,
+          "title": "🎤 Speech-to-Text & Keyphrase Extraction",
+          "image": {
+            "src": "/npl/nlp-speech-to-text.png",
+            "alt": "Transcription & keyphrase"
+          },
+          "description": "Speech-to-text transcription converts audio to text with timestamps and speaker diarization support. Keyphrase and summary tagging highlights critical information from documents and transcripts. Annotators extract keyphrases, summaries, and highlights that capture essential meaning. Essential for searchable knowledge systems, meeting notes, and applications requiring information extraction and summarization.",
+          "useCases": "<strong>Common use cases:</strong> Meeting and conference transcription, podcast transcription with speaker labels, interview documentation, document summarization for search, keyphrase extraction for tagging, research paper analysis, and information retrieval systems."
+        }
+      ]
+    },
+    "quality": {
+      "label": "Why Diraflow",
+      "heading": "NLP annotation <em>precision</em> that<br/>powers language AI",
+      "intro": "We employ linguists, content specialists, and NLP domain experts who understand semantic nuance, cultural context, and business requirements. Rigorous quality checks ensure annotations meet production standards and capture the linguistic depth required for advanced language models.",
+      "bad": {
+        "label": "❌ Commodity annotation",
+        "heading": "What you get elsewhere",
+        "items": [
+          "Generalist workers unfamiliar with linguistics or domain context",
+          "Poor handling of nuance, sarcasm, and cultural references",
+          "No inter-annotator agreement or consistency validation",
+          "Shallow semantic understanding and missed edge cases",
+          "No audit trails or semantic quality verification"
+        ]
+      },
+      "good": {
+        "label": "✦ Diraflow standard",
+        "heading": "What you get with us",
+        "items": [
+          "Linguists and domain experts with deep NLP and business knowledge",
+          "Expert handling of nuance, context, cultural references, and edge cases",
+          "IAA monitoring and calibration on every project",
+          "Deep semantic understanding with contextual and domain accuracy",
+          "Full audit trails, versioning, and detailed semantic QA reports"
+        ]
+      }
+    },
+    "cta": {
+      "id": "get-a-quote",
+      "label": "Ready to start?",
+      "heading": "Tell us about <em>your project</em>",
+      "text": "Send us details about your NLP annotation needs and we'll provide a tailored proposal — scope, timeline, and pricing — within one business day.",
+      "bullets": [
+        {
+          "icon": "✉",
+          "text": "contact@diraflowai.com",
+          "href": "mailto:contact@diraflowai.com"
+        },
+        {
+          "icon": "⏱",
+          "text": "Response within 1 business day",
+          "href": null
+        },
+        {
+          "icon": "🔒",
+          "text": "NDAs signed before project discussion",
+          "href": null
+        },
+        {
+          "icon": "🚀",
+          "text": "Projects start within 1–2 weeks",
+          "href": null
+        }
+      ],
+      "form": {
+        "title": "Send us a brief",
+        "intro": "Include annotation type, text samples, and timeline.",
+        "action": "https://formspree.io/f/xnjllewe",
+        "subject": "NLP Annotation Enquiry — Diraflow",
+        "selectLabel": "Annotation type *",
+        "selectPlaceholder": "Select annotation type…",
+        "options": [
+          "Text Classification",
+          "Named Entity Recognition",
+          "Sentiment & Emotion Analysis",
+          "Intent Detection",
+          "Part-of-Speech & Syntax",
+          "Entity Relationship Extraction",
+          "Dialogue & Conversation",
+          "Content Moderation",
+          "Transcription & Keyphrase",
+          "Multiple types"
+        ],
+        "briefPlaceholder": "Text domain, dataset size, quality standards, timeline…",
+        "submit": "Send enquiry →"
+      }
+    }
+  },
+  {
+    "slug": "video-annotation",
+    "meta": {
+      "title": "Video Annotation — Diraflow",
+      "description": "Expert video annotation services for AI training — object detection, action recognition, pose estimation, scene understanding, and temporal localization with computer vision specialists.",
+      "ogTitle": "Video Annotation — Diraflow",
+      "ogDescription": null,
+      "ogType": "website",
+      "ogUrl": null,
+      "ogImage": null,
+      "canonical": null
+    },
+    "head": {
+      "label": "Specialized expertise",
+      "title": "Video <em>Annotation</em>",
+      "intro": "Precision object detection, action recognition, pose estimation, scene understanding, and temporal localization — from computer vision specialists with deep domain expertise."
+    },
+    "back": {
+      "href": "/solutions",
+      "label": "← Back to Solutions"
+    },
+    "types": {
+      "label": "Our annotation types",
+      "heading": "Complete <em>video annotation</em> coverage",
+      "intro": "Nine specialized annotation types covering every video AI use case — from object detection to action recognition and pose estimation.",
+      "items": [
+        {
+          "reverse": false,
+          "title": "🎯 Object Detection & Bounding Boxes",
+          "image": {
+            "src": "/video annotation/Object- detection.jpg",
+            "alt": "Object detection annotation"
+          },
+          "description": "Object detection locates and labels objects within video frames — people, vehicles, animals, products, etc. Annotators draw bounding boxes around each instance, classify object type, and handle occlusion and scale variation. This enables computer vision models to identify, track, and understand objects across real-world video streams for autonomous systems and visual search.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle perception, retail inventory monitoring, industrial quality inspection, wildlife tracking, security surveillance, sports analytics, and object-based video search systems."
+        },
+        {
+          "reverse": true,
+          "title": "🏃 Action & Activity Recognition",
+          "image": {
+            "src": "/video annotation/activity-detection.webp",
+            "alt": "Action recognition annotation"
+          },
+          "description": "Action recognition identifies what people and objects are doing in video — walking, running, sitting, waving, throwing, swimming, etc. Annotators classify actions with temporal boundaries, capturing when actions start and end. Essential for understanding human behavior, workplace safety monitoring, sports performance analysis, and context-aware video understanding systems.",
+          "useCases": "<strong>Common use cases:</strong> Workplace safety monitoring, sports video analysis, fitness tracking systems, crowd behavior analysis, surveillance anomaly detection, gesture recognition, and human-computer interaction training."
+        },
+        {
+          "reverse": true,
+          "title": "🤸 Keypoint & Pose Estimation",
+          "image": {
+            "src": "/video annotation/keypoint-annotation.png",
+            "alt": "Pose estimation annotation"
+          },
+          "description": "Pose estimation marks skeletal keypoints on human bodies — head, joints, limbs — to capture body configuration and movement. Annotators precisely label anatomical landmarks across video frames, handling occlusion and complex postures. Enables motion capture, fitness coaching, dance analysis, rehabilitation monitoring, and sports biomechanics training at scale.",
+          "useCases": "<strong>Common use cases:</strong> Motion capture for animation, fitness app form correction, physical therapy assessment, dance choreography analysis, sports performance improvement, virtual fitness coaching, and gesture-based interfaces."
+        },
+        {
+          "reverse": false,
+          "title": "🎨 Semantic Segmentation",
+          "image": {
+            "src": "/video annotation/semantic-segmentation.png",
+            "alt": "Semantic segmentation annotation"
+          },
+          "description": "Semantic segmentation assigns class labels to every pixel in video frames — sky, road, building, vegetation, person, vehicle. Annotators perform pixel-level classification, creating precise masks that segment scenes into meaningful regions. Essential for autonomous driving perception, medical imaging analysis, and applications requiring dense, per-pixel understanding of visual content.",
+          "useCases": "<strong>Common use cases:</strong> Autonomous vehicle road understanding, medical image segmentation, satellite image analysis, agricultural crop monitoring, background removal for video editing, and scene understanding for robotics."
+        }
+      ]
+    },
+    "quality": {
+      "label": "Why Diraflow",
+      "heading": "Video annotation <em>precision</em> that<br/>powers computer vision",
+      "intro": "We employ computer vision specialists, roboticists, and annotation engineers who understand visual nuance and technical annotation requirements. Rigorous quality checks ensure bounding boxes, segmentation masks, and labels meet production standards.",
+      "bad": {
+        "label": "❌ Commodity annotation",
+        "heading": "What you get elsewhere",
+        "items": [
+          "Generalist workers unfamiliar with computer vision or domain requirements",
+          "Poor handling of occlusion, perspective, and complex scenarios",
+          "No inter-annotator agreement or consistency validation",
+          "Inaccurate bounding boxes, masks, and temporal boundaries",
+          "No audit trails or detailed quality reporting"
+        ]
+      },
+      "good": {
+        "label": "✦ Diraflow standard",
+        "heading": "What you get with us",
+        "items": [
+          "Computer vision specialists with domain expertise and technical training",
+          "Expert handling of occlusion, perspective, and edge cases",
+          "IAA monitoring and calibration on every project",
+          "Pixel-perfect bounding boxes, segmentation, and temporal accuracy",
+          "Full audit trails, versioning, and detailed QA reports"
+        ]
+      }
+    },
+    "cta": {
+      "id": "get-a-quote",
+      "label": "Ready to start?",
+      "heading": "Tell us about <em>your project</em>",
+      "text": "Send us details about your video annotation needs and we'll provide a tailored proposal — scope, timeline, and pricing — within one business day.",
+      "bullets": [
+        {
+          "icon": "✉",
+          "text": "contact@diraflowai.com",
+          "href": "mailto:contact@diraflowai.com"
+        },
+        {
+          "icon": "⏱",
+          "text": "Response within 1 business day",
+          "href": null
+        },
+        {
+          "icon": "🔒",
+          "text": "NDAs signed before project discussion",
+          "href": null
+        },
+        {
+          "icon": "🚀",
+          "text": "Projects start within 1–2 weeks",
+          "href": null
+        }
+      ],
+      "form": {
+        "title": "Send us a brief",
+        "intro": "Include annotation type, video duration, and timeline.",
+        "action": "https://formspree.io/f/xnjllewe",
+        "subject": "Video Annotation Enquiry — Diraflow",
+        "selectLabel": "Annotation type *",
+        "selectPlaceholder": "Select annotation type…",
+        "options": [
+          "Object Detection",
+          "Action Recognition",
+          "Scene Understanding",
+          "Pose Estimation",
+          "Semantic Segmentation",
+          "Instance Segmentation",
+          "Temporal Action Localization",
+          "Face Detection & Attributes",
+          "Video Captioning",
+          "Multiple types"
+        ],
+        "briefPlaceholder": "Video duration, resolution, domain, quality requirements…",
+        "submit": "Send enquiry →"
+      }
+    }
+  }
+]

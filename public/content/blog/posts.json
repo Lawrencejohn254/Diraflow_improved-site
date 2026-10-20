@@ -1,0 +1,182 @@
+{
+  "coding-task-environments": {
+    "slug": "coding-task-environments",
+    "meta": {
+      "title": "Building coding task environments that actually test agent capability — Diraflow",
+      "description": "Most code evaluation environments are too clean. Real software engineering tasks are messy and ambiguous. Here's how we design for that.",
+      "ogTitle": "Building coding task environments that actually test agent capability — Diraflow Blog",
+      "ogDescription": "Most code evaluation environments are too clean. Real software engineering tasks are messy and ambiguous. Here's how we design for that.",
+      "ogImage": null,
+      "ogUrl": "https://diraflowai.com/blog-posts/building-coding-task-environments",
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1400&q=80&auto=format&fit=crop",
+      "alt": "Software engineering coding environment",
+      "category": "Engineering",
+      "date": "Feb 12, 2026",
+      "readTime": "8 min read",
+      "title": "Building coding task environments that actually test agent capability"
+    },
+    "author": {
+      "name": "Martin O.",
+      "title": "COO · Diraflow",
+      "avatar": "/assets/Martin.jpg"
+    },
+    "related": [
+      "data-flywheel",
+      "red-teaming-at-scale",
+      "great-preference-annotator"
+    ]
+  },
+  "data-flywheel": {
+    "slug": "data-flywheel",
+    "meta": {
+      "title": "The data flywheel: how training data quality compounds over model generations — Diraflow",
+      "description": "The quality of data you build today shapes the capabilities of models trained years from now. We explore the long-term flywheel.",
+      "ogTitle": "The data flywheel — Diraflow Blog",
+      "ogDescription": "How training data quality compounds over model generations — and why the decisions you make now echo forward in time.",
+      "ogImage": null,
+      "ogUrl": "https://diraflowai.com/blog-posts/data-flywheel",
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1400&q=80&auto=format&fit=crop",
+      "alt": "Robotic AI hand — data flywheel",
+      "category": "Industry",
+      "date": "Feb 26, 2026",
+      "readTime": "6 min read",
+      "title": "The data flywheel: how training data quality compounds over model generations"
+    },
+    "author": {
+      "name": "Dominic G.",
+      "title": "Sales Department · Diraflow",
+      "avatar": "/assets/Dominic.jpg"
+    },
+    "related": [
+      "great-preference-annotator",
+      "red-teaming-at-scale",
+      "inter-annotator-agreement"
+    ]
+  },
+  "great-preference-annotator": {
+    "slug": "great-preference-annotator",
+    "meta": {
+      "title": "What makes a great preference annotator? Insights from 1,000 calibration tasks — Diraflow",
+      "description": "We ran 1,000 calibration tasks across our annotator network to figure out what actually predicts high-quality RLHF feedback. The results weren't what we expected.",
+      "ogTitle": null,
+      "ogDescription": null,
+      "ogImage": null,
+      "ogUrl": null,
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1744627049721-73c27008ad28?q=80&w=1400&auto=format&fit=crop",
+      "alt": "Two people reviewing AI model outputs side by side",
+      "category": "RLHF",
+      "date": "Mar 10, 2026",
+      "readTime": "15 min read",
+      "title": "What makes a great preference annotator? Insights from 1,000 calibration tasks"
+    },
+    "author": {
+      "name": "Eustace E.",
+      "title": "Research Department · Diraflow",
+      "avatar": "/assets/Eustace.jpg"
+    },
+    "related": [
+      "inter-annotator-agreement",
+      "red-teaming-at-scale",
+      "data-flywheel"
+    ]
+  },
+  "hidden-complexity-math-datasets": {
+    "slug": "hidden-complexity-math-datasets",
+    "meta": {
+      "title": "The hidden complexity of mathematical reasoning datasets — Diraflow",
+      "description": "Building useful math training data requires careful attention to notation, proof style, error taxonomy, and solution diversity.",
+      "ogTitle": "The hidden complexity of mathematical reasoning datasets — Diraflow Blog",
+      "ogDescription": null,
+      "ogImage": null,
+      "ogUrl": "https://diraflowai.com/blog-posts/hidden-complexity-math-datasets",
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=1400&q=80&auto=format&fit=crop",
+      "alt": "Mathematical equations written on a whiteboard",
+      "category": "STEM Data",
+      "date": "Mar 28, 2026",
+      "readTime": "5 min read",
+      "title": "The hidden complexity of mathematical reasoning datasets"
+    },
+    "author": {
+      "name": "Francis M",
+      "title": "Research Department · Diraflow",
+      "avatar": "/assets/Francis.jpg"
+    },
+    "related": [
+      "coding-task-environments",
+      "inter-annotator-agreement",
+      "great-preference-annotator"
+    ]
+  },
+  "inter-annotator-agreement": {
+    "slug": "inter-annotator-agreement",
+    "meta": {
+      "title": "Inter-annotator agreement: What it really tells you about data quality — Diraflow",
+      "description": "IAA scores are widely cited but poorly understood. We explain what Cohen's κ measures — and what it misses in complex annotation tasks.",
+      "ogTitle": "Inter-annotator agreement: what it really tells you about data quality — Diraflow Blog",
+      "ogDescription": null,
+      "ogImage": null,
+      "ogUrl": "https://diraflowai.com/blog-posts/inter-annotator-agreement",
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&q=80&auto=format&fit=crop",
+      "alt": "Analytics dashboard showing annotation agreement metrics",
+      "category": "Operations",
+      "date": "Mar 19, 2026",
+      "readTime": "7 min read",
+      "title": "Inter-annotator agreement: what it really tells you about data quality"
+    },
+    "author": {
+      "name": "Mark K",
+      "title": "Social Media Department · Diraflow",
+      "avatar": "/assets/Mark.png"
+    },
+    "related": [
+      "great-preference-annotator",
+      "data-flywheel",
+      "red-teaming-at-scale"
+    ]
+  },
+  "red-teaming-at-scale": {
+    "slug": "red-teaming-at-scale",
+    "meta": {
+      "title": "Red-teaming at scale: lessons from 5,000 adversarial prompts — Diraflow",
+      "description": "How structured attack taxonomies produce better safety datasets than random fuzzing. Lessons from 5,000 adversarial prompts.",
+      "ogTitle": "Red-teaming at scale — Diraflow Blog",
+      "ogDescription": "Building effective red-teaming datasets: taxonomies of harm, prompt injection, and automated discovery of dangerous model behaviours.",
+      "ogImage": null,
+      "ogUrl": "https://diraflowai.com/blog-posts/red-teaming-at-scale",
+      "canonical": null
+    },
+    "hero": {
+      "image": "https://images.unsplash.com/photo-1614064642578-7faacdc6336e?q=80&w=1400&auto=format&fit=crop",
+      "alt": "Cybersecurity red-teaming at scale",
+      "category": "Safety",
+      "date": "Apr 7, 2026",
+      "readTime": "8 min read",
+      "title": "Red-teaming at scale: lessons from 5,000 adversarial prompts"
+    },
+    "author": {
+      "name": "Lawrence J",
+      "title": "IT Department · Diraflow",
+      "avatar": "/assets/Lawrence.jpg"
+    },
+    "related": [
+      "great-preference-annotator",
+      "inter-annotator-agreement",
+      "data-flywheel"
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+<p>Here is a test that sounds rigorous: give an AI agent a self-contained function, ask it to fix a bug, run the unit tests, check if they pass. The agent passes. You ship a training dataset full of examples like this. Six months later the agent deployed in production can't navigate a real codebase to save its life.</p>
+<p>The problem is not the agent. The problem is the environment. Most code evaluation scaffolds are built for benchmark convenience — isolated, fully specified, hermetically sealed. Real software engineering tasks are none of those things. This post is about the gap between the two, and how we design environments that close it.</p>
+<div class="stat-strip">
+<div class="stat-box"><div class="stat-num">83%</div><div class="stat-lbl">Of SWE-Bench tasks involve changes across more than one file</div></div>
+<div class="stat-box"><div class="stat-num">~4×</div><div class="stat-lbl">More agent failures on ambiguous specs vs. fully specified tasks in our internal evals</div></div>
+<div class="stat-box"><div class="stat-num">61%</div><div class="stat-lbl">Of production coding agent errors trace to context retrieval, not generation quality</div></div>
+</div>
+<h2>The cleanliness problem</h2>
+<p>The standard coding benchmark task looks like this: here is a function, here is a failing test, make the test pass. Everything the agent needs is right there. The context window is pre-populated with the relevant code. The task is fully specified. The evaluation is deterministic.</p>
+<p>This is useful for measuring narrow capabilities. It is a poor proxy for what a coding agent actually needs to do in a real engineering environment. Real tasks have incomplete specifications. They involve repositories with hundreds of files, inconsistent naming conventions, undocumented dependencies, and context that is scattered across issues, comments, and commit history. The agent has to figure out what it needs before it can figure out what to do.</p>
+<p>When agents trained on clean benchmark tasks hit real codebases, the failure mode is almost always the same: the agent generates technically correct code, in the wrong place, for the wrong reason, because it could not navigate to the actual problem. This is not a generation failure. It is a task understanding failure — and it is systematically undertrained in most coding datasets.</p>
+<blockquote>
+      "The agents that perform well on HumanEval don't necessarily perform well in production. The gap isn't capability — it's that HumanEval tasks are pre-solved in terms of context. The agent doesn't have to find anything. Real codebases require finding first."
+      <cite>— Rafael Santos, Senior Environment Engineer, Diraflow</cite>
+</blockquote>
+<h2>What a realistic task environment actually requires</h2>
+<p>We've built and rebuilt coding task environments over two years of production work. The properties that matter most are consistently the same five, and they're all things that clean benchmark tasks strip out.</p>
+<h3>1. Repository-level scope</h3>
+<p>Tasks should require the agent to navigate a real repository structure, not a pre-extracted snippet. This means multi-file contexts, import graphs that aren't handed to the agent, and the need to identify which parts of the codebase are relevant before doing anything else. A task that starts with the relevant file already open is not testing navigation ability — it is bypassing the hardest part of the problem.</p>
+<p>We build our environments on top of real open-source repositories with intentional modifications: added bugs, feature stubs, outdated documentation, incomplete tests. The agent has to find the problem and understand the surrounding code before it can address it.</p>
+<h3>2. Ambiguous specifications</h3>
+<p>Real engineering tasks rarely arrive as precise logical propositions. They arrive as GitHub issues, Slack messages, and half-completed feature requests written by someone who had a different mental model of the codebase than the implementer. Agents trained only on fully-specified tasks learn to treat ambiguity as an error condition rather than a thing to reason through.</p>
+<p>We include a spectrum of specification quality in our task sets — from tightly defined bug reports with clear reproduction steps, to loosely described feature requests where the agent must infer intent from context and make defensible implementation choices. The ability to produce a reasonable interpretation and execute against it is a distinct capability from the ability to execute against a clear spec. Both matter.</p>
+<h3>3. Dependency and environment state</h3>
+<p>Most benchmark tasks assume a clean, fully functional environment. Real codebases have outdated dependencies, environment variables that aren't set, configuration files that are partially broken, and test suites that fail for reasons unrelated to the task. An agent that can only operate in a pristine environment is not ready for production.</p>
+<p>We version our task environments and include deliberate environment-state variation — missing dependencies, conflicting package versions, configuration gaps — so that agents learn to diagnose and address environment problems as part of the task, not as a blocker before it starts.</p>
+<h3>4. Multi-step action sequences with real execution</h3>
+<p>Execution feedback is one of the most important signals an agent can use. Many evaluation frameworks assess final output quality without giving the agent the ability to run code, observe the result, and iterate. This removes the primary mechanism by which real engineers solve problems.</p>
+<p>Our environments run agents inside sandboxed execution contexts where they can run tests, observe failures, read stack traces, and try again. The evaluation scores the full trajectory — including how efficiently the agent navigated to the solution — not just whether the final output was correct.</p>
+<h3>5. Realistic success criteria</h3>
+<p>Not every real task has a single correct answer. Some tasks have multiple valid implementations. Some have correct implementations that introduce technical debt. Some have implementations that pass the tests but violate the architecture patterns of the surrounding code. Evaluation criteria that reduce everything to "tests pass / tests fail" miss the quality dimension entirely.</p>
+<p>We design evaluation rubrics with multiple axes: test passage, code quality against the surrounding codebase's conventions, correctness of the approach as judged by a senior engineer reviewer, and — for ambiguous tasks — quality of the interpretation the agent chose to execute against.</p>
+<div class="callout-info">
+<div class="callout-label">ℹ️ On execution sandboxing</div>
+<p>Running real code during evaluation introduces significant infrastructure complexity — sandboxing, resource limits, network isolation, state reset between runs. We use containerised environments with filesystem snapshots for fast reset. Each task run starts from a clean state; agents cannot carry context between tasks. The overhead is real, but the alternative — evaluating code that was never run — produces datasets that systematically reward plausible-looking incorrect solutions.</p>
+</div>
+<h2>What clean environments miss: a concrete example</h2>
+<p>Consider a task framed two ways. Both are about fixing a bug in a Django REST API that causes incorrect pagination on a filtered endpoint.</p>
+<table>
+<thead>
+<tr><th>Dimension</th><th>Clean benchmark version</th><th>Realistic environment version</th></tr>
+</thead>
+<tbody>
+<tr><td>Context given</td><td>The relevant view function, pre-extracted</td><td>The full repository; agent must locate the relevant code</td></tr>
+<tr><td>Specification</td><td>"Fix the bug in this function so these tests pass"</td><td>GitHub issue: "Pagination breaks when filters applied, seems related to queryset ordering"</td></tr>
+<tr><td>Environment state</td><td>All dependencies installed, tests runnable</td><td>One missing env variable; agent must identify and set it before tests run</td></tr>
+<tr><td>Evaluation</td><td>Tests pass / fail (binary)</td><td>Tests pass + code reviewed against repo conventions + no regression in related tests</td></tr>
+<tr><td>What it measures</td><td>Can the agent generate a correct fix when told exactly where to look?</td><td>Can the agent diagnose, locate, fix, and verify a real engineering problem?</td></tr>
+</tbody>
+</table>
+<p>An agent that scores 95% on the clean version may score 40% on the realistic version. That gap is not noise. It is the actual capability difference that matters for production deployment.</p>
+<h2>Building a task library that covers the distribution</h2>
+<p>Individual tasks are not enough. What matters for training is covering the distribution of real engineering work — which is highly uneven. Most tasks are routine; a small fraction are genuinely hard. Most ambiguity is mild; a small fraction requires substantial inferential work. A good task library reflects this.</p>
+<p>We classify every task in our library along four axes before it goes into training data:</p>
+<ul>
+<li><strong>Complexity tier</strong> (1–5): from single-function changes to cross-cutting architectural modifications</li>
+<li><strong>Specification quality</strong> (precise → vague): how much inferential work is required before implementation begins</li>
+<li><strong>Context retrieval demand</strong> (low → high): how many files and subsystems must be understood to complete the task</li>
+<li><strong>Environment difficulty</strong> (clean → degraded): how much pre-task diagnostic work is required</li>
+</ul>
+<p>This classification lets us sample the training distribution deliberately — ensuring coverage of hard cases, which are underrepresented in naturally-occurring task collections but disproportionately important for agent robustness.</p>
+<div class="callout">
+<div class="callout-label">The long-tail problem</div>
+<p>The tasks that break agents in production are almost never the common cases. They are the edge cases — unusual dependency conflicts, ambiguous feature requests, repositories with inconsistent conventions. Designing your training task library to cover the long tail requires deliberate effort; it never happens by accident when sampling from existing codebases.</p>
+</div>
+<h2>Gold solutions and trajectory annotation</h2>
+<p>Every task in our library has a gold solution — not just a correct answer, but a complete, annotated execution trajectory: the files consulted, the diagnostic steps taken, the intermediate attempts, and the reasoning at each decision point. These trajectories are produced by senior engineers working through the tasks as if they were real work, with think-aloud protocols captured.</p>
+<p>The value of trajectory annotation over outcome annotation is significant. A model trained only on "here is the correct final code" cannot learn the navigational and diagnostic strategies that lead to the correct final code. A model trained on "here is how an expert worked through this problem, step by step" can learn the process — which transfers to novel tasks the final-code annotation cannot reach.</p>
+<pre><code># Excerpt from a trajectory annotation (simplified)
+
+Step 1 — Reproduce the issue
+  Action: Run failing test suite to confirm error
+  Output: AssertionError in test_filtered_pagination — 
+          expected 10 results, got 47
+  Reasoning: The count mismatch suggests the filter 
+             is not being applied before pagination
+
+Step 2 — Locate relevant code
+  Action: Search codebase for pagination logic
+  Files consulted: views/listing.py, utils/pagination.py,
+                   mixins/filterable.py
+  Reasoning: Pagination applied in utils, but filter
+             in mixin — likely an ordering conflict
+
+Step 3 — Identify root cause
+  Action: Inspect queryset construction in filterable.py
+  Finding: .order_by() call resets queryset slice,
+           discarding applied filter
+  ...</code></pre>
+<h2>What this means for teams building coding agents</h2>
+<p>If you are building or fine-tuning a coding agent, the evaluation environment is not a detail — it is a first-order design decision. Training on clean tasks produces agents that perform well on clean tasks. Training on realistic environments produces agents that generalise to real codebases. The gap between those two outcomes is one of the largest controllable variables in coding agent development, and it gets less attention than model architecture choices that have smaller effects on production performance.</p>
+<ol>
+<li><strong>Audit your task complexity distribution.</strong> If most of your tasks are single-file, fully-specified, and environment-clean, you are undertesting the capabilities that matter in production. Measure the distribution before assuming it's representative.</li>
+<li><strong>Add specification ambiguity deliberately.</strong> At minimum, 20–30% of your tasks should require the agent to interpret and clarify an underspecified request before implementing. This is a distinct skill from implementation and needs distinct training signal.</li>
+<li><strong>Run code during evaluation, not just after.</strong> Agents that cannot use execution feedback during a task are flying blind. If your evaluation framework doesn't support iterative execution, it is not measuring the skill that matters most.</li>
+<li><strong>Annotate trajectories, not just outcomes.</strong> Final-code annotation is cheaper. Trajectory annotation is significantly more useful for training agents that generalise. The difference shows up clearly at evaluation time on novel task types.</li>
+<li><strong>Weight your hard cases.</strong> The long tail of unusual, ambiguous, environment-degraded tasks is underrepresented in natural task collections. Sample it deliberately or your agent will be systematically weak in exactly the situations where weakness is most costly.</li>
+</ol>
+<div class="callout">
+<div class="callout-label">Work with us</div>
+<p>Diraflow builds coding task environments and agentic evaluation datasets designed to close the gap between benchmark performance and production capability. If you're building a software engineering agent and want realistic task environments with trajectory annotation and execution-verified gold solutions, <a href="/contact">get in touch</a>. We'll respond within one business day.</p>
+</div>

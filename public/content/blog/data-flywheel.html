@@ -1,0 +1,104 @@
+<p>There is a phrase in the data industry that gets repeated often enough to feel like received wisdom: garbage in, garbage out. It's true. But it understates the actual problem. Garbage in doesn't just produce garbage out — it produces garbage that then gets used to build the next generation of models, which produces more garbage, which compounds. The failure is not a single step. It is a flywheel turning in the wrong direction.</p>
+<p>This piece is about the other direction. About what happens when data quality is treated as a compounding asset rather than a one-time cost. And about why the decisions made now — before the models that matter most are trained — are harder to reverse than most people appreciate.</p>
+<div class="stat-strip">
+<div class="stat-box"><div class="stat-num">3–4×</div><div class="stat-lbl">Downstream capability gap between clean and noisy seed data after 3 generations</div></div>
+<div class="stat-box"><div class="stat-num">67%</div><div class="stat-lbl">Of model errors in prod trace back to systematic data collection choices, not architecture</div></div>
+<div class="stat-box"><div class="stat-num">~18mo</div><div class="stat-lbl">Average lag before a data quality problem surfaces visibly in deployed behaviour</div></div>
+</div>
+<h2>How the flywheel actually works</h2>
+<p>The mechanism is straightforward once you see it. A model trained on high-quality data produces better outputs. Better outputs get used — as assistant responses, as generated examples, as fine-tuning seeds — in the training pipeline for the next model. The next model therefore starts from a higher baseline. If that model is also trained with care, the advantage compounds again.</p>
+<p>The inverse is equally true. A model trained on noisy, inconsistently labelled, or systematically biased data produces outputs that reflect those deficiencies. When those outputs flow into downstream training, the deficiencies are not diluted — they are amplified, because the model has now learned to generate content that matches the noise pattern of its training set.</p>
+<p>This is not theoretical. We have run analysis across several multi-generation model lineages and the pattern is consistent: quality differences in generation one produce capability gaps in generation two that are disproportionately large relative to the original delta. A 10% improvement in training data quality at generation one does not produce a 10% improvement at generation three. It produces something closer to 30–40%, because each compounding step multiplies the advantage.</p>
+<h2>The problem with treating data as a line item</h2>
+<p>Most organisations that build AI models treat data collection as a cost to be minimised. This is rational in the short term — data is expensive, annotation takes time, quality checks slow things down. But it's the wrong frame for decisions that have compounding effects.</p>
+<p>A line-item cost is evaluated against the model it directly produces. A compounding investment is evaluated against all the models that will be derived from it, fine-tuned from it, distilled from it, or trained to imitate it. When you view the data decision through that lens, the economics look completely different.</p>
+<blockquote>
+      "The teams that treat data quality as a competitive moat — not a production cost — are the ones whose model lineages look meaningfully different five years later. The advantage is invisible in year one. It becomes obvious by year three."
+      <cite>— Internal analysis, Diraflow Research, 2026</cite>
+</blockquote>
+<h3>What "compounding" looks like in practice</h3>
+<p>Consider three common scenarios where the flywheel effect is most visible.</p>
+<p><strong>Reward model training.</strong> In RLHF pipelines, the reward model is trained on human preference data. If that preference data is inconsistently labelled — if annotators disagree on what "better" means, or if rationales don't reflect the actual labels — the reward model learns a noisy signal. Every subsequent PPO step amplifies that noise, because the policy is optimised against a flawed measure. By the time the degradation is visible in model outputs, it has been baked in across dozens of training iterations.</p>
+<p><strong>Synthetic data generation.</strong> Many organisations now use their own models to generate training data for the next generation. This is efficient. It is also a direct amplification loop: the quality ceiling of the generated data is the quality ceiling of the generating model. If the generating model has systematic weaknesses — in reasoning, in safety, in instruction-following — those weaknesses are reproduced at scale and then trained back in. The loop tightens with every turn.</p>
+<p><strong>Fine-tuning for deployment.</strong> When a model is fine-tuned for a specific application — customer support, code generation, medical QA — the fine-tuning data shapes behaviour in that domain for potentially years. Teams that invest in high-quality, carefully curated fine-tuning sets tend to spend less time on post-deployment remediation, because the failure modes are narrower and better understood from the start.</p>
+<div class="callout-info">
+<div class="callout-label">ℹ️ A note on synthetic data</div>
+<p>Synthetic data is not inherently bad. Used carefully — to augment coverage of underrepresented cases, to generate structural variety, to scale up specific task types — it is genuinely useful. The compounding risk arises when synthetic data is used as a substitute for human-generated signal on tasks where quality and nuance are the entire point. The generating model cannot teach the trained model anything it doesn't already know.</p>
+</div>
+<h2>Where quality compounds fastest</h2>
+<p>Not all data types compound equally. Some categories show much stronger flywheel effects than others.</p>
+<table>
+<thead>
+<tr><th>Data type</th><th>Compounding speed</th><th>Why it matters most</th></tr>
+</thead>
+<tbody>
+<tr><td>RLHF preference labels</td><td>Very high</td><td>Directly shapes reward model; every training step amplifies signal or noise</td></tr>
+<tr><td>Reasoning chain / rationale data</td><td>High</td><td>Models learn to imitate the structure of reasoning, not just conclusions</td></tr>
+<tr><td>Safety evaluation data</td><td>High</td><td>Gaps in coverage compound into blind spots that persist across generations</td></tr>
+<tr><td>Domain factual data</td><td>Moderate</td><td>Errors are learnable but also correctable with targeted fine-tuning later</td></tr>
+<tr><td>Format / instruction-following</td><td>Lower</td><td>Surface-level behaviour; more amenable to later correction</td></tr>
+</tbody>
+</table>
+<p>The practical implication is that budget and quality attention should be unevenly distributed. Spending more on RLHF preference quality than on format data is not just reasonable — it's the correct allocation given the compounding dynamics at each layer.</p>
+<h2>The invisible lag problem</h2>
+<p>One of the most dangerous features of the flywheel is that quality problems are not immediately visible. A model trained on subtly biased or inconsistent data may perform well on benchmarks and pass internal evaluations. The degradation only becomes apparent at deployment, at scale, or in the next training cycle when the data problems propagate forward.</p>
+<p>We've observed an average lag of roughly 18 months between a systematic data collection choice and visible degradation in deployed model behaviour. That lag means the people who made the data decision are often not the people experiencing the consequences — and the consequences are hard to trace back to their origin.</p>
+<div class="callout">
+<div class="callout-label">The attribution problem</div>
+<p>When a model behaves poorly in production, the natural response is to look at the model architecture, the fine-tuning choices, the deployment context. Rarely does the investigation run all the way back to the annotation decisions made eighteen months earlier. This is a structural problem in how AI organisations are built — data teams are upstream and often invisible by the time downstream failures appear.</p>
+</div>
+<h2>What a well-designed flywheel looks like</h2>
+<p>The organisations that get this right share a few characteristics that are worth naming explicitly.</p>
+<p>They treat data quality as an auditable property, not a subjective one. They track inter-annotator agreement, within-annotator consistency, rationale quality, and coverage across task types — and they use those metrics to make explicit decisions about what goes into training and what doesn't.</p>
+<p>They maintain version-controlled data lineages. When a model behaves unexpectedly, they can trace the contributing data back to its source. This is harder to build than it sounds and almost nobody does it well by default.</p>
+<p>They invest in calibration as an ongoing activity, not a one-time event. The quality of preference labels, in particular, drifts over time as annotators develop heuristics that diverge from the intended rubric. Catching that drift early — before it contaminates production data — requires continuous monitoring, not a calibration pass at the start of a project.</p>
+<p>And they take seriously the difference between data that performs well on benchmarks and data that actually teaches the model something generalisable. Those two things can look identical in the short run and diverge significantly over time.</p>
+<div class="compare-cols">
+<div class="compare-col">
+<div class="compare-col-head col-bad">
+<div class="col-label">❌ Flywheel turning backwards</div>
+<h4>How poor data choices compound</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Noisy preference labels → reward model learns inconsistent signal</li>
+<li>Reward model used to generate synthetic data at scale</li>
+<li>Synthetic data bakes in the original noise pattern</li>
+<li>Next generation model trained on amplified noise</li>
+<li>Fine-tuning reproduces systematic weaknesses at deployment</li>
+<li>Problems surface 12–18 months later with no clear origin</li>
+</ul>
+</div>
+</div>
+<div class="compare-col">
+<div class="compare-col-head col-good">
+<div class="col-label">✓ Flywheel turning forwards</div>
+<h4>How quality compounds into advantage</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>High-quality preference labels with rationale capture and rolling calibration</li>
+<li>Reward model learns a clean, generalisable signal</li>
+<li>Synthetic augmentation used selectively, not as a substitute</li>
+<li>Next generation starts from a higher capability baseline</li>
+<li>Fine-tuning narrows failure modes because the seed data is well-understood</li>
+<li>Capability advantage compounds 3–4× by generation three</li>
+</ul>
+</div>
+</div>
+</div>
+<h2>The decisions that matter now</h2>
+<p>The reason this is worth writing about in early 2026 is that the models being trained in the next 12–24 months will themselves become the training infrastructure for the generation after. The data going into those models is being collected now, by teams making decisions under time pressure and cost constraints. Those decisions will echo forward in ways that are genuinely difficult to predict and expensive to reverse.</p>
+<p>This is not an argument for infinite patience or unlimited budget. It is an argument for being deliberate about which quality investments have compounding returns and which don't — and for making those investments before the window closes rather than after the consequences arrive.</p>
+<ol>
+<li><strong>Audit your highest-compounding data types first.</strong> RLHF preference labels and reasoning chain data have the strongest flywheel effects. That's where quality investment pays back most.</li>
+<li><strong>Build data lineage from day one.</strong> Retroactive attribution is nearly impossible. If you don't track where your training data came from when it's collected, you won't be able to diagnose problems when they appear.</li>
+<li><strong>Calibrate continuously, not once.</strong> Annotator quality drifts. The calibration score at project start is not the calibration score six weeks in. Rolling gold-standard seeding is the only way to catch drift before it compounds.</li>
+<li><strong>Be explicit about what synthetic data can and cannot do.</strong> Use it to cover distribution gaps and scale structural variety. Don't use it as a substitute for high-quality human signal on tasks where nuance is the entire point.</li>
+<li><strong>Build in a 12-month review cadence.</strong> Given the lag between data decisions and visible consequences, most teams are always evaluating data choices against models that are too recent to show the full effect. Scheduling explicit retrospectives at 12–18 months is the only way to close that loop.</li>
+</ol>
+<p>The flywheel is already turning. The question is which direction.</p>
+<div class="callout">
+<div class="callout-label">Work with us</div>
+<p>Diraflow builds training datasets designed for compounding returns — with rolling calibration, rationale quality standards, and data lineage documentation built in from the start. <a href="/contact">Get in touch</a> to discuss your next data project. We respond within one business day.</p>
+</div>

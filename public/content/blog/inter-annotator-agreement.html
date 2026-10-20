@@ -1,0 +1,105 @@
+<p>Inter-annotator agreement is one of the most cited metrics in data annotation. A high Cohen's κ is treated as a quality stamp; a low one triggers panic and rework. But after managing millions of annotations across RLHF, preference ranking, and safety classification projects, I've come to believe that IAA is both overused and misunderstood. It is a useful diagnostic. It is not a quality certificate. And conflating the two creates datasets that look good on paper and underperform in production.</p>
+<p>This post is about what IAA actually measures, where it misleads, and how to use it as one signal among several — rather than the single number that determines whether a project passed or failed.</p>
+<div class="stat-strip">
+<div class="stat-box"><div class="stat-num">0.82</div><div class="stat-lbl">Cohen's κ we once achieved on a task where annotators were systematically missing the hardest cases</div></div>
+<div class="stat-box"><div class="stat-num">+12%</div><div class="stat-lbl">Model win-rate improvement after we stopped chasing κ &gt; 0.8 and focused on edge-case calibration instead</div></div>
+<div class="stat-box"><div class="stat-num">4</div><div class="stat-lbl">Distinct reasons a low κ score might actually be fine — and one reason a high κ should worry you</div></div>
+</div>
+<h2>The basic math — and where it already starts to mislead</h2>
+<p>Percent agreement is straightforward: if two annotators label 100 items identically 90 times, that's 90% agreement. Cohen's κ adjusts for the baseline agreement you'd expect by chance, given the distribution of labels. If 95% of items fall into one category, two annotators could achieve 90% agreement by always picking that category — κ reveals that this agreement barely exceeds chance and strips out the false signal.</p>
+<p>That's the theory. In practice, κ carries its own set of distortions that matter enormously for AI training data.</p>
+<p>κ is <strong>prevalence-sensitive</strong>. In imbalanced datasets, a high κ can mask systematic disagreement on the minority class — which is often the class you care about most. κ is also <strong>aggregative</strong>: a single number that averages across all label types, all annotators, and all task types simultaneously. That averaging hides a lot.</p>
+<div class="callout-info">
+<div class="callout-label">ℹ️ κ score interpretation guide</div>
+<p>The standard Landis &amp; Koch scale: κ below 0.2 is "slight" agreement, 0.21–0.40 is "fair", 0.41–0.60 is "moderate", 0.61–0.80 is "substantial", and above 0.80 is "almost perfect." These thresholds were calibrated for medical diagnosis studies in the 1970s. They have no particular validity for RLHF preference annotation or safety classification. Applying them uncritically is a category error.</p>
+</div>
+<h2>When high κ is the wrong target</h2>
+<p>We once ran a binary safety classification task — "Is this prompt harmful?" — on a dataset that was 85% harmless. We achieved κ = 0.82. The project lead was pleased. When we audited the disagreements, every single conflict was on borderline cases: prompts that required genuine judgment about intent, context, and potential harm. The cases that were easy were easy for everyone. The cases that mattered were exactly the ones where annotators diverged.</p>
+<p>A κ of 0.82 with this pattern tells you almost nothing useful about your safety data. It tells you your annotators agree on the easy cases. It conceals that they disagree on the hard cases — which are the only cases worth training on for safety fine-tuning, because the easy ones don't need a model to get right.</p>
+<p>The fix is not to increase κ on those hard cases by constraining annotators more tightly. The fix is to report per-category agreement and per-difficulty-cohort agreement alongside the overall score, so you can see where the disagreement actually lives and whether it matters.</p>
+<blockquote>
+      "After switching from chasing κ &gt; 0.8 to focusing on edge-case consistency and annotator calibration, our model's win rate in live A/B tests increased by 12% — because we stopped over-constraining our annotators on the cases where human judgment is legitimately varied."
+      <cite>— Data lead, large e-commerce LLM team</cite>
+</blockquote>
+<h2>When low κ is completely fine</h2>
+<p>For tasks with inherent subjectivity — ranking responses by helpfulness, rating the creativity of a story, evaluating whether a tone is appropriate for a given context — a κ of 0.4 to 0.6 is often exactly right. Human experts genuinely disagree on these judgments. That disagreement is not a measurement error. It is a real property of the phenomenon you are trying to capture.</p>
+<p>Forcing artificially high IAA on subjective tasks requires one of two things: either you constrain the rubric so tightly that annotators are mechanically following rules rather than exercising judgment, or you select a homogeneous annotator pool that reaches consensus by sharing the same priors. Both of these produce datasets that misrepresent the actual distribution of human preferences — which is the entire point of preference annotation for RLHF.</p>
+<p>In our RLHF projects, we deliberately allow moderate IAA on preference pairs and instead measure <strong>consistency of ranking direction</strong> — whether annotators agree on which response is better, rather than whether they agree on a precise quality score. Transitivity (annotator A prefers X to Y and Y to Z, so also prefers X to Z) is a much more meaningful reliability indicator for preference data than raw κ.</p>
+<h2>What IAA doesn't tell you at all</h2>
+<p>IAA is a property of the combination of task, guidelines, and annotator pool. A low score could mean the task is genuinely ambiguous, the guidelines are unclear, the annotators are undertrained, or the phenomenon itself is inherently variable. A high score could mean the task is trivial, the annotators are colluding or anchoring on each other, or the guidelines are so prescriptive that annotators have stopped thinking and started pattern-matching.</p>
+<p>None of these diagnoses are visible in the κ number itself. They require supplementary investigation.</p>
+<div class="compare-cols">
+<div class="compare-col">
+<div class="compare-col-head col-bad">
+<div class="col-label">❌ What a low κ might mean</div>
+<h4>Reasons to investigate — not panic</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Task specification is genuinely ambiguous and needs refinement</li>
+<li>Annotation guidelines have gaps that annotators are filling differently</li>
+<li>Annotators are inadequately calibrated and need a sync session</li>
+<li>The phenomenon itself is inherently variable (subjective tasks)</li>
+<li>One annotator is an outlier — check per-pair breakdown before assuming systemic failure</li>
+</ul>
+</div>
+</div>
+<div class="compare-col">
+<div class="compare-col-head col-good">
+<div class="col-label">⚠ What a high κ might mean</div>
+<h4>Reasons not to stop investigating</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Task is trivial — high agreement tells you nothing meaningful</li>
+<li>Dataset is heavily imbalanced — majority class is driving the score</li>
+<li>Guidelines are so rigid they're suppressing legitimate annotator judgment</li>
+<li>Annotators are anchoring on each other's choices (check if batches are truly independent)</li>
+<li>Hard cases are being systematically skipped or arbitrated away</li>
+</ul>
+</div>
+</div>
+</div>
+<h2>A practical framework for using IAA correctly</h2>
+<h3>Before annotation begins</h3>
+<p>Run a pilot on 100–150 items before committing to full production. Compute per-category κ and per-annotator-pair agreement — not just the overall number. If κ is below 0.3 on a task that shouldn't be subjective, refine the guidelines or decompose the task before scaling. If κ is above 0.8 on a task that should be non-trivial, check for anchoring or rubric over-constraint before assuming success.</p>
+<h3>During production</h3>
+<p>Track IAA weekly on a held-out set of 50–100 items seeded continuously into the production queue. Use a rolling window rather than point-in-time snapshots — annotator drift appears as a trend, not a single observation. If κ drops by more than 0.08 from baseline, trigger a calibration session before the dataset accumulates further noise.</p>
+<h3>After completion</h3>
+<p>Do not report average κ alone. Report per-label agreement, per-annotator-pair agreement, and — most importantly — agreement broken down by difficulty cohort: easy cases, medium cases, and the hard edge cases that sit near the decision boundary. Use disagreement items as a separate challenge set for downstream model evaluation. The items where annotators disagreed most are the items most likely to reveal model weaknesses.</p>
+<h2>Metrics that work better than κ in specific contexts</h2>
+<table>
+<thead>
+<tr><th>Metric</th><th>Best for</th><th>Advantage over κ</th></tr>
+</thead>
+<tbody>
+<tr><td>Krippendorff's α</td><td>Any number of annotators, mixed scales, missing data</td><td>More flexible; handles ordinal and interval data; not skewed by imbalance the same way</td></tr>
+<tr><td>Gwet's AC1</td><td>Imbalanced binary or multi-class tasks</td><td>Less sensitive to prevalence and marginal distributions — more stable on skewed datasets</td></tr>
+<tr><td>Pairwise F1 (minority class)</td><td>Safety classification with rare harmful content</td><td>Focuses agreement measurement on the class that matters, not the dominant majority</td></tr>
+<tr><td>Spearman / Pearson correlation</td><td>Continuous ratings (Likert 1–5, quality scores)</td><td>Captures ordinal relationship rather than treating scale as nominal</td></tr>
+<tr><td>Ranking transitivity rate</td><td>Preference pairs in RLHF</td><td>Measures internal consistency of preference judgements rather than label match</td></tr>
+</tbody>
+</table>
+<p>No single metric captures the full picture. We run a dashboard that displays multiple metrics simultaneously so that any one score failing to tell the full story is caught by the others.</p>
+<h2>Case study: improving IAA without dumbing down the task</h2>
+<p>A client came to us wanting to raise IAA on a complex legal summarisation task from κ = 0.55 to κ = 0.75. The instinct was to simplify the rubric. We pushed back and proposed two changes instead.</p>
+<p>First, a 30-minute daily calibration session at the start of each week where annotators discussed three or four edge cases from the prior week's production batch — not to reach consensus, but to make their interpretive reasoning visible to each other. Second, a "disagree and explain" workflow: any item with initial annotator disagreement went to a third senior annotator who wrote a clarifying guideline note attached to that item category.</p>
+<p>Within three weeks, IAA rose to κ = 0.72. More importantly, downstream model performance on legal summarisation tasks improved significantly — not because we reduced the subjectivity in the data, but because we institutionalised the resolution process for it. The disagreements that remained were genuine, documented, and reflected in the training signal rather than arbitrated away.</p>
+<div class="callout">
+<div class="callout-label">The disagreement items are your most valuable data</div>
+<p>The items annotators disagree on are not the items to discard. They are the items that sit near decision boundaries — the exact cases where a well-trained model needs the most signal. Routing them to senior review and capturing the resolution rationale produces training data that is more valuable per item than any of the easy cases where everyone agreed immediately.</p>
+</div>
+<h2>What to ask when someone shows you a κ score</h2>
+<p>Next time a client, a partner, or a colleague reports an IAA figure, these are the questions worth asking before deciding what it means.</p>
+<ol>
+<li><strong>What is the label distribution?</strong> A κ of 0.80 on a balanced dataset means something very different from a κ of 0.80 on a dataset that is 90% one class.</li>
+<li><strong>Is this an average or a breakdown?</strong> Ask for per-category and per-difficulty-cohort agreement. The average hides where the problems actually are.</li>
+<li><strong>What happened to the disagreement items?</strong> Were they discarded, adjudicated, or resolved with documented rationale? The answer tells you whether the hard cases are represented in the dataset or filtered out of it.</li>
+<li><strong>Does high agreement here mean anything?</strong> For genuinely trivial tasks, a high κ is expected and tells you nothing about whether the labels are correct or useful.</li>
+<li><strong>Has this score been tracked over time?</strong> A stable κ is more informative than a single reading. Drift is the pattern that matters.</li>
+</ol>
+<p>IAA is a useful tool. It is not a verdict. A dataset with κ = 0.85 that avoids all the genuinely interesting cases is worse than a dataset with κ = 0.60 that captures the full complexity of the task. The goal is not to maximise the number — it is to understand what the number is actually telling you, and to supplement it with everything it cannot.</p>
+<div class="callout">
+<div class="callout-label">Work with us</div>
+<p>Diraflow tracks IAA across multiple metrics, per annotator, per category, and per difficulty cohort — not just as a single project-wide number. If you want annotation data where the quality monitoring is built in rather than bolted on, <a href="/contact">get in touch</a>. We respond within one business day.</p>
+</div>

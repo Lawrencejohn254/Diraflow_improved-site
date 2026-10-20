@@ -1,0 +1,372 @@
+{
+  "automotive": {
+    "title": "Automotive & Mobility",
+    "intro": "Artificial intelligence is transforming the automotive industry by powering autonomous driving, advanced driver assistance systems (ADAS), predictive maintenance, and smart manufacturing. These innovations rely on accurately labeled sensor data to help AI systems understand complex driving environments.",
+    "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#c8922a",
+    "accentSoft": "rgba(200,146,42,0.16)",
+    "bullets": [
+      "ADAS and perception datasets",
+      "Multi-modal vision, LiDAR, and telemetry labels",
+      "Harsh-weather and rare-event coverage"
+    ],
+    "chips": [
+      "Vision",
+      "Perception",
+      "Safety"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Better labels mean safer edge cases, faster model iteration, and more reliable autonomy in motion.",
+    "pillars": [
+      [
+        "Improve autonomous vehicle perception",
+        "We create precisely annotated datasets that help autonomous vehicles accurately identify pedestrians, cyclists, vehicles, traffic signs, lane markings, road boundaries, and obstacles."
+      ],
+      [
+        "Accelerate AI model development",
+        "Our scalable annotation teams and streamlined workflows reduce the time required to prepare training data while maintaining quality."
+      ],
+      [
+        "Enhance driver safety",
+        "We support ADAS systems by providing reliable data that improves object detection, environmental awareness, and decision-making."
+      ],
+      [
+        "Maintain consistent data quality",
+        "Every dataset undergoes comprehensive quality assurance and validation to ensure accuracy, consistency, and compliance."
+      ]
+    ]
+  },
+  "healthcare": {
+    "title": "Healthcare & Life Sciences",
+    "intro": "We support clinical AI, biomedical research, and digital health with expert-reviewed datasets that reflect real medical reasoning, safety requirements, and the pace of modern care.",
+    "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#2f6f7a",
+    "accentSoft": "rgba(47,111,122,0.16)",
+    "bullets": [
+      "Licensed medical expertise",
+      "Clinical QA and triage workflows",
+      "Biomedical research support"
+    ],
+    "chips": [
+      "Clinical",
+      "Research",
+      "Compliance"
+    ],
+    "impactTitle": "Why healthcare data must be precise",
+    "impactText": "In medical workflows, the cost of ambiguity is high, so every label must be grounded in context and review.",
+    "pillars": [
+      [
+        "Clinical reasoning",
+        "Annotation workflows built with licensed medical professionals for diagnosis, triage, and patient support tasks."
+      ],
+      [
+        "Biomedical research",
+        "Data for literature review, pharmacology, drug discovery, and scientific QA."
+      ],
+      [
+        "Patient safety",
+        "We support review processes that align with evolving clinical needs, documentation practice, and operational realities."
+      ],
+      [
+        "Scalable quality",
+        "Specialist review teams help maintain consistency across large multi-stage healthcare datasets."
+      ]
+    ]
+  },
+  "retail": {
+    "title": "Retail & E-commerce",
+    "intro": "Artificial intelligence is helping retailers deliver personalized shopping experiences, improve inventory management, optimize supply chains, and better understand customer behavior. High-quality training data is essential for building AI systems that drive these innovations.",
+    "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#a56d2d",
+    "accentSoft": "rgba(165,109,45,0.15)",
+    "bullets": [
+      "Product understanding and search relevance",
+      "Customer support and merchandising data",
+      "Personalization and recommendation workflows"
+    ],
+    "chips": [
+      "Commerce",
+      "CX",
+      "Search"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Cleaner product understanding enables better discovery, less friction, and stronger conversion journeys.",
+    "pillars": [
+      [
+        "Enhance customer personalization",
+        "We prepare structured datasets that help AI systems better understand customer preferences and behaviors."
+      ],
+      [
+        "Improve inventory visibility",
+        "Our annotation services support intelligent inventory management systems that provide better stock visibility."
+      ],
+      [
+        "Increase operational efficiency",
+        "By delivering reliable training data, we help retailers automate repetitive tasks and streamline operations."
+      ],
+      [
+        "Strengthen visual recognition systems",
+        "We create datasets that enable AI models to identify products, organize merchandise, and improve search."
+      ]
+    ]
+  },
+  "agriculture": {
+    "title": "Agriculture",
+    "intro": "Agriculture is increasingly adopting artificial intelligence to improve productivity, sustainability, and resource management. AI-powered solutions help farmers monitor crops, detect diseases, optimize irrigation, and increase yields through data-driven decision-making.",
+    "image": "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#5b7a2d",
+    "accentSoft": "rgba(91,122,45,0.15)",
+    "bullets": [
+      "Crop health and disease labels",
+      "Drone and satellite image annotation",
+      "Field operations and yield support"
+    ],
+    "chips": [
+      "Field data",
+      "Vision",
+      "Sustainability"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Better field labels help teams act earlier and use resources more efficiently in complex environments.",
+    "pillars": [
+      [
+        "Improve crop monitoring",
+        "We develop high-quality annotated datasets that help AI systems monitor crop growth and identify issues."
+      ],
+      [
+        "Enable early disease detection",
+        "Our datasets allow AI models to recognize signs of crop diseases and pest infestations earlier."
+      ],
+      [
+        "Support sustainable farming",
+        "We enable AI solutions that optimize water, fertilizer, and resource use while minimizing environmental impact."
+      ],
+      [
+        "Enhance decision-making",
+        "We help organizations build AI systems that surface useful agricultural insights from imagery and sensors."
+      ]
+    ]
+  },
+  "logistics": {
+    "title": "Logistics & Supply Chain",
+    "intro": "Artificial intelligence is transforming logistics by improving warehouse automation, inventory management, route optimization, and shipment tracking. Reliable datasets are essential for creating intelligent supply chain solutions that operate efficiently at scale.",
+    "image": "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#4c6b8a",
+    "accentSoft": "rgba(76,107,138,0.16)",
+    "bullets": [
+      "Warehouse and asset tracking labels",
+      "Route planning and exception analysis",
+      "Demand and fulfillment support"
+    ],
+    "chips": [
+      "Operations",
+      "Planning",
+      "Visibility"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Clear operational labels turn complex movement data into faster, more dependable logistics decisions.",
+    "pillars": [
+      [
+        "Improve warehouse automation",
+        "We prepare datasets that enable AI systems to recognize packages, products, and storage locations."
+      ],
+      [
+        "Enhance inventory management",
+        "Our annotation services support AI solutions that maintain accurate inventory records and planning."
+      ],
+      [
+        "Optimize logistics operations",
+        "Reliable training data enables intelligent systems to improve routing and resource allocation."
+      ],
+      [
+        "Increase shipment visibility",
+        "We help organizations monitor shipments and assets more reliably in real time."
+      ]
+    ]
+  },
+  "manufacturing": {
+    "title": "Manufacturing",
+    "intro": "Manufacturers are embracing AI to improve production efficiency, automate quality inspections, monitor equipment, and reduce downtime. High-quality annotated datasets are essential for building reliable industrial AI solutions.",
+    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#7b4c2d",
+    "accentSoft": "rgba(123,76,45,0.15)",
+    "bullets": [
+      "Visual defect detection",
+      "Predictive maintenance labels",
+      "Process and safety review data"
+    ],
+    "chips": [
+      "Industrial",
+      "Quality",
+      "Ops"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Better industrial labels reduce waste, speed up inspection, and help teams act before equipment fails.",
+    "pillars": [
+      [
+        "Improve quality inspection",
+        "We prepare detailed datasets that enable AI systems to detect product defects quickly and accurately."
+      ],
+      [
+        "Reduce equipment downtime",
+        "Our annotation services support predictive maintenance solutions that catch issues before they become costly."
+      ],
+      [
+        "Optimize production processes",
+        "Reliable AI datasets improve workflow efficiency and reduce output variation."
+      ],
+      [
+        "Enhance workplace safety",
+        "We help organizations develop AI systems that monitor industrial environments and support safer conditions."
+      ]
+    ]
+  },
+  "finance": {
+    "title": "Financial Services & Insurance",
+    "intro": "Financial institutions are increasingly adopting AI to improve fraud detection, automate document processing, assess risk, and enhance customer experiences. Reliable data is essential for developing secure and accurate financial AI systems.",
+    "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#55698b",
+    "accentSoft": "rgba(85,105,139,0.16)",
+    "bullets": [
+      "Fraud and anomaly labeling",
+      "Claims and underwriting support",
+      "Compliance and dispute workflows"
+    ],
+    "chips": [
+      "Risk",
+      "Compliance",
+      "Finance"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Well-structured labels help risk systems operate with more confidence and less manual review.",
+    "pillars": [
+      [
+        "Strengthen fraud detection",
+        "We create structured datasets that help AI systems identify suspicious transactions more accurately."
+      ],
+      [
+        "Accelerate document processing",
+        "Our annotation services improve AI-powered document automation and operational efficiency."
+      ],
+      [
+        "Improve risk assessment",
+        "Reliable training data enables financial institutions to evaluate risks more effectively."
+      ],
+      [
+        "Support regulatory compliance",
+        "Our quality assurance processes help maintain consistency in regulated environments."
+      ]
+    ]
+  },
+  "government": {
+    "title": "Government & Smart Cities",
+    "intro": "Governments and municipalities are embracing artificial intelligence to improve transportation systems, enhance public safety, optimize infrastructure management, and deliver more efficient public services.",
+    "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#3f6c67",
+    "accentSoft": "rgba(63,108,103,0.15)",
+    "bullets": [
+      "Infrastructure monitoring data",
+      "Civic service and policy reasoning",
+      "Urban mobility and public safety support"
+    ],
+    "chips": [
+      "Public sector",
+      "Cities",
+      "Civic AI"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Well-curated civic data helps public institutions respond faster and plan with more confidence.",
+    "pillars": [
+      [
+        "Improve infrastructure management",
+        "We prepare datasets that enable AI systems to monitor roads, bridges, and public facilities."
+      ],
+      [
+        "Enhance public safety",
+        "Our annotation services support AI applications that improve situational awareness and emergency response."
+      ],
+      [
+        "Enable smarter urban planning",
+        "We transform imagery and geospatial information into structured datasets for city planning."
+      ],
+      [
+        "Increase operational efficiency",
+        "We help automate public-sector workflows and reduce manual processing burdens."
+      ]
+    ]
+  },
+  "security": {
+    "title": "Security & Surveillance",
+    "intro": "As security challenges continue to evolve, organizations are increasingly relying on artificial intelligence to improve surveillance, detect threats, monitor facilities, and enhance public safety.",
+    "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#6e4c5d",
+    "accentSoft": "rgba(110,76,93,0.15)",
+    "bullets": [
+      "Threat and anomaly detection labels",
+      "Person and object recognition data",
+      "Operational monitoring and review datasets"
+    ],
+    "chips": [
+      "Safety",
+      "Monitoring",
+      "High stakes"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Clearer labels reduce false positives and help security teams act with greater confidence.",
+    "pillars": [
+      [
+        "Improve threat detection",
+        "We create high-quality datasets that enable AI systems to identify potential security threats."
+      ],
+      [
+        "Enhance object recognition",
+        "Our annotation specialists prepare precise datasets for people, vehicles, and equipment."
+      ],
+      [
+        "Support real-time monitoring",
+        "Reliable training data helps AI systems analyze live video streams more effectively."
+      ],
+      [
+        "Reduce false positives",
+        "Rigorous QA improves AI accuracy and reduces unnecessary alerts."
+      ]
+    ]
+  },
+  "media": {
+    "title": "Media & Entertainment",
+    "intro": "Artificial intelligence is transforming the media and entertainment industry by enabling intelligent content moderation, personalized recommendations, automated captioning, audience analytics, and multimedia search.",
+    "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1000&q=80&auto=format&fit=crop",
+    "accent": "#8f4b6b",
+    "accentSoft": "rgba(143,75,107,0.15)",
+    "bullets": [
+      "Content moderation and safety labels",
+      "Recommendation and discovery data",
+      "Captioning and localization support"
+    ],
+    "chips": [
+      "Content",
+      "Engagement",
+      "Multimedia"
+    ],
+    "impactTitle": "What good data unlocks",
+    "impactText": "Better media labels create more relevant discovery, stronger moderation, and richer audience experiences.",
+    "pillars": [
+      [
+        "Improve content discovery",
+        "We prepare structured datasets that enable AI recommendation systems to better understand user preferences."
+      ],
+      [
+        "Enhance content moderation",
+        "Our annotation services support safer digital platforms and healthier online communities."
+      ],
+      [
+        "Support multimedia intelligence",
+        "We create image, video, audio, and text datasets for deeper insights and automation."
+      ],
+      [
+        "Increase accessibility",
+        "Our data preparation services support captioning, transcription, translation, and speech recognition."
+      ]
+    ]
+  }
+}

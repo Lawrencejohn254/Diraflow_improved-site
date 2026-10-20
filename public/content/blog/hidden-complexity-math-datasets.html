@@ -1,0 +1,106 @@
+<p>At first glance, building datasets for mathematical reasoning seems straightforward: collect math problems and their solutions. But as soon as you try to train a model that can <em>truly reason</em> — not just pattern-match against a memorised solution bank — you hit a wall of hidden complexity. Over the past two years, Diraflow has constructed over 5,000 annotated math examples spanning algebra, number theory, calculus, and proof-based contest problems. Here is what we learned about the messy reality behind "math data."</p>
+<div class="stat-strip">
+<div class="stat-box"><div class="stat-num">5k+</div><div class="stat-lbl">Annotated math examples built across algebra, calculus, number theory, and proofs</div></div>
+<div class="stat-box"><div class="stat-num">89% → 61%</div><div class="stat-lbl">Accuracy drop when a model fine-tuned on Leibniz notation faced identical problems in prime notation</div></div>
+<div class="stat-box"><div class="stat-num">−42%</div><div class="stat-lbl">Reduction in algebraic sign errors after three weeks of fine-tuning on error-annotated data</div></div>
+</div>
+<h2>Notation is not neutral</h2>
+<p>A single mathematical concept can be expressed in dozens of notationally distinct ways. dy/dx versus f′(x) versus ẏ. C(n,k) versus nCk versus the binomial coefficient symbol. Models trained on one notation family often fail to generalise to others — even though the underlying mathematics is identical. This is not a minor quirk. It is a systematic failure mode that appears in production.</p>
+<p>In one experiment, a model fine-tuned on Leibniz notation for derivatives scored 89% accuracy on test questions using the same notation style. On identical problems rewritten in prime notation, accuracy dropped to 61%. That gap is not a reasoning failure — it is overfitting to typography, and it is entirely preventable if notation diversity is built into the data collection pipeline from the start.</p>
+<div class="callout">
+<div class="callout-label">Our approach to notation coverage</div>
+<p>We built a systematic notation augmentation pipeline. Each seed problem is rewritten in three to five equivalent notational variants by expert mathematicians, then verified for semantic equivalence by a second reviewer. This increases dataset size and substantially improves cross-notation generalisation — at the cost of roughly 2.5× the annotation time per problem. It is worth it.</p>
+</div>
+<h2>Proof granularity: the layer most datasets skip</h2>
+<p>Most math datasets are question–answer pairs: the model outputs a final numeric answer or a short symbolic expression. But real mathematical reasoning is about chains of justification. A model that outputs "42" might have guessed. It might have followed a correct procedure and made an arithmetic slip. It might have applied a valid theorem to the wrong object. A final answer alone cannot distinguish between these, which means a dataset built around final answers cannot train a model to reliably produce correct reasoning — only to produce correct-looking outputs.</p>
+<p>To train genuine reasoning capability, we need step-level annotation. We developed a proof-step taxonomy that labels each inference line as one of: definition application, algebraic manipulation, substitution, factorisation, inductive hypothesis, case analysis, contradiction, or bound-tightening. Using this taxonomy, we build datasets where the training target is not just the answer but a structured proof sketch — the reasoning trace that produces it.</p>
+<pre><code>// Example: step-annotated proof (simplified JSON)
+{
+  "problem": "Prove that the sum of two even integers is even.",
+  "proof_steps": [
+    {
+      "text": "Let a = 2k and b = 2m for integers k, m",
+      "type": "definition_application"
+    },
+    {
+      "text": "Then a + b = 2k + 2m",
+      "type": "substitution"
+    },
+    {
+      "text": "= 2(k + m)",
+      "type": "factorisation"
+    },
+    {
+      "text": "Since k + m is an integer, a + b is divisible by 2",
+      "type": "definition_application"
+    }
+  ],
+  "final_answer": "a + b is even. □"
+}</code></pre>
+<p>Models trained on this step-annotated data show substantially stronger performance on out-of-distribution proof problems. More practically, they can articulate their reasoning when asked — which is the behaviour that makes a math AI actually useful rather than just occasionally correct.</p>
+<h2>Error taxonomies: why wrong answers are your most valuable data</h2>
+<p>One of the most overlooked components of a math dataset is the negative examples — but not all errors are equally informative. A model (or a student) might make an arithmetic slip, confuse a sign, misapply a theorem to a case where its conditions aren't satisfied, or commit a logical non-sequitur that happens to produce the right answer for the wrong reason. Each of these error types has a different cause and requires a different correction signal.</p>
+<p>We built an error taxonomy with 18 categories and had annotators label not only whether a model's output was correct, but specifically why it was wrong when it failed. This turned out to be critical for reward model training: we could give partial credit to correct reasoning that contained an arithmetic slip, and strongly penalise confident logical leaps — rather than treating all wrong answers identically, which destroys the training signal that would distinguish them.</p>
+<blockquote>
+      "Using Diraflow's error-annotated dataset, we reduced the rate of algebraic sign errors in our model by 42% in three weeks of fine-tuning, while keeping final-answer accuracy stable across the rest of the problem distribution."
+      <cite>— Head of Research, AI math tutoring startup</cite>
+</blockquote>
+<h2>The diversity of solution strategies</h2>
+<p>A common mistake in math dataset collection is assuming there is one canonical solution per problem. Many problems can be solved in multiple ways — analytic versus combinatorial, forward versus backward induction, using different theorems that each provide a valid path to the same conclusion. A dataset built around single solution paths trains models to treat those paths as rigid templates. When a model encounters a novel problem that would benefit from an alternative approach, it applies its memorised template and gets stuck.</p>
+<p>We intentionally collect multiple solution strategies for at least 30% of our problems, typically by assigning the same problem to different expert annotators with different mathematical backgrounds and then reconciling the results. The additional cost is significant. The payoff — models that can select between strategies rather than blindly applying one — has been clearly visible in downstream evaluations.</p>
+<div class="compare-cols">
+<div class="compare-col">
+<div class="compare-col-head col-bad">
+<div class="col-label">❌ Single-path datasets</div>
+<h4>The standard approach and its failure modes</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>One canonical solution per problem, usually the shortest</li>
+<li>Model learns a fixed template for each problem type</li>
+<li>Novel problems that require a different approach cause failures</li>
+<li>No signal for when to switch strategy mid-problem</li>
+<li>Proof problems with multiple valid structures are flattened to one</li>
+</ul>
+</div>
+</div>
+<div class="compare-col">
+<div class="compare-col-head col-good">
+<div class="col-label">✓ Multi-strategy datasets</div>
+<h4>What we build toward at Diraflow</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Multiple valid solution paths captured per problem</li>
+<li>Model learns that strategy selection is part of reasoning</li>
+<li>Notational variants included to prevent typography overfitting</li>
+<li>Step-level annotation captures the reasoning structure, not just output</li>
+<li>Error taxonomy enables partial-credit reward signal during fine-tuning</li>
+</ul>
+</div>
+</div>
+</div>
+<h2>The data leakage problem in math datasets</h2>
+<p>Most widely-used math problem sets — AMC, AIME, GSM8K, MATH — are substantially present in the pre-training corpora of major LLMs. This creates an evaluation problem that is easy to overlook: a model that answers competition problems correctly may be recalling solutions from pre-training rather than reasoning through them. High benchmark scores on contaminated data are not evidence of generalisation.</p>
+<p>We verify originality using n-gram overlap checks against known pre-training corpora as far as that is possible to reconstruct, and we create original problem variants when contamination risk is high. Original variants require more effort to produce — they need a mathematician who can construct a problem with equivalent difficulty and structure but novel surface form — but they are the only way to build evaluation sets that actually measure generalisation rather than memorisation.</p>
+<div class="callout-info">
+<div class="callout-label">ℹ️ On LaTeX normalisation</div>
+<p>Before any comparison or evaluation step, canonicalise your LaTeX. Normalise spacing, convert equivalent forms (e.g. \frac{a}{b} and a/b when both are present), unify delimiter styles. Without this step, semantically identical expressions fail string-match comparisons and introduce false negatives into your evaluation pipeline. It is unglamorous infrastructure work that has an outsized effect on the reliability of your quality metrics.</p>
+</div>
+<h2>Annotator requirements are non-negotiable</h2>
+<p>Mathematical annotation is one of the few annotation task types where domain expertise is not just helpful but strictly required. A generalist annotator cannot reliably judge whether a proof step is valid, identify the error class of an incorrect solution, or recognise that two different proofs of the same theorem are both correct. We only hire annotators with at minimum a bachelor's degree in mathematics or a closely related quantitative field, and we run weekly calibration sessions using gold-standard problems with known solution structures.</p>
+<p>This is expensive. It is also the only approach that produces data worth training on. The signal-to-noise ratio in math annotation done by non-specialists is low enough that scaling the dataset does not compensate — you get more data, but the quality ceiling prevents it from teaching the model anything it doesn't already know from pattern-matching.</p>
+<h2>Operational recommendations</h2>
+<ol>
+<li><strong>Build notation augmentation in from the start.</strong> Retrofitting notation diversity into an existing dataset is painful. Design the collection pipeline to capture three to five notational variants per problem before anything enters production.</li>
+<li><strong>Annotate proof steps, not just answers.</strong> Final-answer-only datasets cannot teach reasoning structure. Even partial step annotation — covering the key inference transitions — substantially improves the quality of the training signal.</li>
+<li><strong>Build and use an error taxonomy.</strong> Classifying why an answer is wrong is more valuable for reward model training than simply labelling it incorrect. An 18-category taxonomy sounds like overhead; in practice it is the difference between a reward model that improves reasoning and one that just rewards confident-sounding outputs.</li>
+<li><strong>Collect multiple solution strategies deliberately.</strong> Assign the same problem to annotators with different mathematical backgrounds. Reconcile the results. The additional cost pays back in model robustness on novel problem types.</li>
+<li><strong>Test for notation overfitting explicitly.</strong> Include cross-notation variants in your evaluation set from the beginning, not as an afterthought. A model that cannot transfer across equivalent notations is not reasoning mathematically — it is doing a sophisticated form of symbol matching.</li>
+<li><strong>Treat non-numeric answers as a first-class task type.</strong> Proofs, derivations, "no solution exists" responses, and open-ended constructions are systematically underrepresented in most math datasets. They require separate evaluation rubrics and separate annotator calibration, but they represent a large fraction of real mathematical work.</li>
+</ol>
+<p>The hidden complexity of mathematical reasoning datasets is not a bug in the domain. It is a reflection of how rich mathematical thinking actually is — the variety of valid approaches, the importance of reasoning structure, the way notation shapes understanding. Embracing that complexity, rather than flattening it for convenience, is the only path to datasets that train models capable of doing real mathematics rather than mimicking its surface.</p>
+<div class="callout">
+<div class="callout-label">Work with us</div>
+<p>Diraflow builds mathematical reasoning datasets with expert annotators, step-level proof annotation, error taxonomy labelling, and notation augmentation built in by default. If you're training a model on quantitative reasoning tasks, <a href="/contact">get in touch</a>. We respond within one business day.</p>
+</div>

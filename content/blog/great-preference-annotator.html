@@ -1,0 +1,126 @@
+<p>Here's what we expected to find: domain experts would outperform generalists, annotators with formal writing training would produce better rationales, and experience on previous RLHF projects would be the strongest predictor of quality. We ran 1,000 calibration tasks across our annotator network to check. All three were wrong.</p>
+<p>The actual predictors were messier, more interesting, and in some cases genuinely surprising. This post is an attempt to share what we found without rounding the edges off.</p>
+<div class="stat-strip">
+<div class="stat-box"><div class="stat-num">1,047</div><div class="stat-lbl">Calibration tasks completed</div></div>
+<div class="stat-box"><div class="stat-num">130</div><div class="stat-lbl">Annotators across 18 countries</div></div>
+<div class="stat-box"><div class="stat-num">0.61</div><div class="stat-lbl">Average Cohen's κ across all tasks</div></div>
+</div>
+<h2>Why we ran this study</h2>
+<p>Every RLHF project starts with the same assumption: that you can screen for quality upfront, run a calibration round, and then let annotators loose. In practice, this breaks down faster than most clients expect. Calibration scores don't hold. Annotators who perform brilliantly in the first week drift by week four. Some people who look weak in calibration turn out to be exactly the kind of careful thinker you want on ambiguous tasks.</p>
+<p>We've run RLHF annotation at scale for three years. Our IAA numbers are good — our average Cohen's κ sits at 0.68 across completed projects, which puts us in the top tier of what's published. But we couldn't reliably explain <em>why</em> certain annotators outperformed others until we went looking for it properly.</p>
+<p>So we designed a study. 1,047 calibration tasks, each completed by multiple annotators from our network, across four categories: helpfulness preference, factual accuracy, instruction-following, and safety. Each task had a gold-standard answer agreed by three senior reviewers. We then measured how closely each annotator tracked the gold standard and, more usefully, tried to figure out what distinguished the top quarter from the bottom quarter.</p>
+<h2>What we screened for vs. what actually mattered</h2>
+<p>Before the study, our screening process covered domain knowledge (verified through credential review and domain-specific tests), writing ability (evaluated through a short free-response exercise), and prior annotation experience (self-reported and reference-checked). These felt like reasonable proxies.</p>
+<p>They weren't useless. Domain knowledge did predict performance — but only weakly, and only on tasks where the answer genuinely required specialist knowledge. For most preference annotation, it made almost no difference whether an annotator had an advanced degree in the relevant field. The PhD in linguistics performed about as well as the secondary school teacher on helpfulness preference tasks. Sometimes worse, because experts sometimes optimised for technical correctness in responses rather than actual usefulness to the person asking.</p>
+<p>Writing ability predicted the quality of <em>rationales</em> — annotators who wrote better could explain their choices more clearly. But it didn't predict whether their choices were right. You can write a beautifully articulate explanation of a wrong answer.</p>
+<p>Prior RLHF experience was the biggest surprise. It predicted almost nothing. Annotators who had completed thousands of tasks on other platforms were no more likely to track our gold standard than annotators who were new to preference annotation entirely. A few of the weakest performers in our study had the longest resumes.</p>
+<blockquote>
+      "The annotators who'd done the most RLHF work elsewhere came in with strong opinions about what a 'good' response looks like. Sometimes those opinions aligned with ours. Often they didn't. The new annotators were more willing to sit with the task and think it through."
+      <cite>— Nadia, QA Lead, Diraflow</cite>
+</blockquote>
+<h2>The two things that actually predicted performance</h2>
+<p>After running regressions on everything we could measure, two variables stood out. Neither is what we expected going in.</p>
+<h3>1. Tolerance for ambiguity</h3>
+<p>We measured this in two ways. First, through a short scenario test we added to our intake process three years ago — nothing fancy, just five situations where the right answer genuinely isn't clear and we ask the applicant to explain their reasoning. Second, through behaviour on our calibration tasks: specifically, whether annotators changed their answer when they were asked to re-evaluate a task they'd already completed, shown with different context.</p>
+<p>Annotators who scored high on tolerance for ambiguity were more likely to notice when a task was genuinely hard, more likely to write honest rationales that acknowledged uncertainty, and significantly more likely to track the gold standard on the tasks that our reviewers also found difficult. They were also more likely to flag tasks they felt unqualified to judge, which sounds like a weakness but is actually exactly what you want.</p>
+<p>Annotators who scored low tended to resolve ambiguity quickly by defaulting to a rule. Not a bad rule, usually. Just a rule that didn't account for the specific situation in front of them. They were faster. They were also wrong more often on edge cases.</p>
+<h3>2. Intellectual curiosity about the subject matter</h3>
+<p>This one is harder to screen for but was consistently visible in the data. Annotators who read around the topics they were annotating — who asked questions in team channels, who raised flags when they spotted inconsistencies in the rubric, who seemed genuinely interested in the problem — produced better preference labels and substantially better rationales.</p>
+<p>We're not talking about people who read academic papers in their spare time. We're talking about a more basic orientation toward the work: whether the annotator was trying to understand what a good response actually is, or whether they were trying to complete tasks efficiently. Both groups can produce high throughput. Only one produces reliable signal.</p>
+<div class="callout">
+<div class="callout-label">What this means for screening</div>
+<p>You can't screen for intellectual curiosity with a test. What you can do is design your onboarding and calibration to select for it. Annotators who are curious show up differently in how they handle the first week. They ask more questions. They complete calibration tasks more slowly. They're more likely to flag inconsistencies. Those are signals worth tracking.</p>
+</div>
+<h2>The consistency problem</h2>
+<p>One finding we didn't expect at all: annotation consistency within a single annotator dropped substantially over time. Not because annotators got worse at the task — their calibration scores stayed stable. But when we presented the same task to the same annotator one month apart, they chose differently about 23% of the time.</p>
+<p>This is a known issue in annotation generally, but the scale surprised us. And the breakdown by task type was uneven. On factual accuracy tasks, within-annotator consistency was high — around 89% agreement with their own prior answers. On helpfulness preference tasks, it dropped to 71%. On safety tasks, it dropped further: 64%.</p>
+<p>The implication is uncomfortable. When we report IAA scores for a project, we're measuring cross-annotator agreement at a point in time. But if that same group of annotators completed the same tasks six weeks later, the scores would look different — not because the gold standard changed, but because human preference judgement has genuine variance built in. Any RLHF dataset reflects not just what people think about responses, but what they thought at the specific moment they were annotating.</p>
+<figure>
+<img alt="Bar chart showing within-annotator consistency across task types" loading="lazy" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&amp;q=80&amp;auto=format&amp;fit=crop"/>
+<figcaption>Within-annotator consistency varied from 64% on safety tasks to 89% on factual accuracy. Each bar represents the average re-agreement rate across annotators when shown the same task four weeks later.</figcaption>
+</figure>
+<p>We're not sure what to do about this yet. Our current approach is to flag tasks where within-annotator consistency has historically been low and require additional review on those items. It slows things down. It's probably worth it.</p>
+<h2>Where domain expertise actually helps</h2>
+<p>Earlier I said domain knowledge predicted performance only weakly. That's true on average. But there are specific task types where it matters a lot, and I want to be clear about what those are.</p>
+<p>For factual accuracy tasks — evaluating whether a response contains true statements — domain expertise was the single strongest predictor. A cardiologist reviewing a response about treatment protocols will catch errors that a generalist annotator misses entirely. Not because they're a better annotator, but because they know things the generalist doesn't.</p>
+<p>For tasks where the evaluation criterion is something like "is this response actually useful to someone asking this question," expertise had almost no edge over well-calibrated generalists, and in some cases was a disadvantage. Experts know what <em>should</em> be useful. Non-experts know what is useful, to someone like them.</p>
+<p>The practical upshot is that task-type matching matters more than blanket credential requirements. Helpfulness preference tasks don't need PhDs. Factual accuracy tasks in medicine, law, or quantitative finance do. Most RLHF projects contain both types, and treating them the same in annotator selection wastes money and dilutes data quality simultaneously.</p>
+<table>
+<thead>
+<tr><th>Task type</th><th>Domain expertise effect</th><th>Curiosity effect</th><th>Ambiguity tolerance</th></tr>
+</thead>
+<tbody>
+<tr><td>Factual accuracy (specialist domain)</td><td>Strong positive</td><td>Moderate</td><td>Weak</td></tr>
+<tr><td>Helpfulness preference</td><td>Neutral / slight negative</td><td>Strong positive</td><td>Strong positive</td></tr>
+<tr><td>Instruction-following</td><td>Weak positive</td><td>Moderate</td><td>Moderate</td></tr>
+<tr><td>Safety evaluation</td><td>Weak positive</td><td>Strong positive</td><td>Strong positive</td></tr>
+</tbody>
+</table>
+<h2>The rationale problem</h2>
+<p>Most RLHF pipelines ask annotators to provide a written rationale alongside their preference label. The idea is that rationales make data more useful for reward model training and provide a paper trail for QA review. This is correct. What's less discussed is how badly rationale quality varies, and what drives it.</p>
+<p>We coded 3,200 rationales from our calibration tasks across four dimensions: specificity (does it reference something concrete about the responses?), accuracy (does the rationale correctly explain the label?), usefulness (would this rationale help a model learn something generalisable?), and honesty (does it acknowledge when the choice was close?).</p>
+<p>The average rationale scored poorly on all four. Most were short justifications that restated the preference rather than explaining it. "Response A is better because it's more helpful" tells a reward model almost nothing. "Response A addresses the user's actual question directly while Response B starts with an unnecessary preamble that buries the answer" is useful.</p>
+<div class="compare-cols">
+<div class="compare-col">
+<div class="compare-col-head col-bad">
+<div class="col-label">❌ Weak rationale</div>
+<h4>Common in most RLHF pipelines</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Restates the preference label without explanation</li>
+<li>Uses generic terms like "more helpful" or "better written"</li>
+<li>Doesn't reference specific parts of either response</li>
+<li>Doesn't acknowledge when the choice was close</li>
+<li>Could have been written without reading either response</li>
+</ul>
+</div>
+</div>
+<div class="compare-col">
+<div class="compare-col-head col-good">
+<div class="col-label">✓ Strong rationale</div>
+<h4>What we train our annotators toward</h4>
+</div>
+<div class="compare-col-body">
+<ul>
+<li>Cites a specific sentence, structure, or claim from each response</li>
+<li>Explains why that feature matters for this particular request</li>
+<li>Notes what would have made the non-preferred response better</li>
+<li>Flags when the two responses are genuinely close in quality</li>
+<li>Distinguishes between "better overall" and "better for this user"</li>
+</ul>
+</div>
+</div>
+</div>
+<p>The annotators who consistently wrote strong rationales were, without exception, the ones who scored high on our intellectual curiosity measure. They were interested in articulating <em>why</em> something worked, not just recording that it did. You can't train that in a rubric session. But you can select for it, and you can design feedback loops that reward it.</p>
+<h2>The calibration trap</h2>
+<p>There's a pattern we've started calling the calibration trap, and it happens on almost every long-running project. Annotators come in, do calibration, perform well, get admitted to production. Then, over four to six weeks, their scores drift — sometimes up, sometimes down, but almost never flat. When we track the drift carefully, the downward cases cluster around annotators who optimised for the calibration rubric rather than internalising the underlying quality criteria.</p>
+<p>These annotators pass calibration by learning the rules. That's different from understanding what the rules are trying to measure. When the tasks in production differ from the calibration set — which they always do — the rule-followers drift, because their rules don't transfer. The annotators who internalised the goal maintain consistency even on novel task formats.</p>
+<p>The fix isn't more calibration. It's ongoing calibration — a rolling set of gold-standard tasks seeded into the production queue at regular intervals, with individual-level tracking of how each annotator's accuracy changes over time. This is operationally harder to run. It's the only thing we've found that actually catches drift before it contaminates the dataset.</p>
+<div class="callout-info">
+<div class="callout-label">ℹ️ How we implement rolling calibration</div>
+<p>We seed 3–5% of each annotator's weekly task queue with gold-standard items — tasks where we have a verified answer. These aren't flagged as calibration tasks. Annotators don't know which tasks have gold answers. We track each annotator's rolling accuracy over the last 50 gold items and flag anyone whose score drops more than 8 percentage points from their baseline for a sync with their team lead.</p>
+</div>
+<h2>What we still don't understand</h2>
+<p>There are things in this data I genuinely can't explain yet. The most persistent: annotators who perform excellently on all four task types for several weeks and then, with no detectable change in context, start producing inconsistent results. Not gradually — abruptly. Their per-task time stays the same. Their rationale length stays the same. Their IAA drops by 15 points in a week.</p>
+<p>We've talked to annotators this has happened to. The explanations are varied: personal stress, a change in how they were reading the rubric after a team discussion, boredom, a new interpretation of a criterion. All plausible. None conclusive. The honest answer is that human annotation quality is noisier than we'd like, in ways that don't always have clean explanations.</p>
+<p>I find this somewhat uncomfortable to write, because the whole pitch of premium annotation services is that you get better signal. We do. But "better" is a relative term, and anyone who tells you that human preference annotation is a clean, reliable process is smoothing over a lot of real variance. The appropriate response to that variance is systematic monitoring, not pretending it doesn't exist.</p>
+<h2>Practical recommendations</h2>
+<p>If you're running RLHF annotation — whether through a partner like us or internally — here's what our data actually supports doing differently.</p>
+<ol>
+<li><strong>Screen for ambiguity tolerance, not experience.</strong> Add scenario-based questions to your intake that don't have clean answers. Watch how applicants reason, not what conclusion they reach.</li>
+<li><strong>Match annotator type to task type.</strong> Helpfulness preference tasks don't require domain experts. Factual accuracy in specialist domains does. Paying for expertise you don't need doesn't buy you quality.</li>
+<li><strong>Make rolling calibration non-negotiable.</strong> Seed gold-standard tasks into production queues continuously. Track per-annotator accuracy over rolling windows, not just at onboarding.</li>
+<li><strong>Train on rationale quality specifically.</strong> Preference labels without good rationales are less useful than they look. Show annotators examples of weak and strong rationales and explain what distinguishes them. Do this repeatedly, not once.</li>
+<li><strong>Track within-annotator consistency.</strong> Re-presenting the same task to the same annotator weeks apart is time-consuming and worth it. 23% within-annotator inconsistency on helpfulness tasks means your dataset has meaningful noise baked in. You should know where it is.</li>
+<li><strong>Build flagging into your culture, not just your rubric.</strong> The annotators we most want on hard projects are the ones who say "I'm not sure I'm qualified to judge this." That behaviour has to be rewarded, not penalised, or it won't happen.</li>
+</ol>
+<h2>What this means for the models trained on this data</h2>
+<p>Most of the literature on RLHF focuses on what happens to the model. What reward signal do you get? How does KL divergence behave? Does the model overfit to the annotator population? These are the right questions to ask. They're also downstream of the annotation quality questions, and annotation quality questions get less attention than they deserve.</p>
+<p>If your annotators are inconsistent, your reward model is learning noise. If your annotators are optimising for speed over accuracy, your reward model is learning a proxy for quality rather than quality itself. If your annotators are resolving ambiguous cases with personal heuristics that weren't designed into the rubric, your reward model is learning those heuristics — and they will show up in the model's behaviour in ways that are hard to diagnose, because nobody documented what the heuristics were.</p>
+<p>The preference data question and the model behaviour question are the same question at different stages of the pipeline. We run preference annotation projects. We think about it from the data side. But every conversation we have with model developers confirms that annotation quality variance is one of the main things they're flying blind on, because they receive the dataset without visibility into how it was produced.</p>
+<p>We're working on improving that transparency. More on that in a future post.</p>
+<div class="callout">
+<div class="callout-label">Work with us</div>
+<p>Diraflow builds RLHF and preference annotation datasets with rolling calibration, rationale quality training, and per-annotator consistency tracking built in. <a href="/contact">Get in touch</a> if you're planning a preference data project — we'll come back with a concrete proposal within one business day.</p>
+</div>

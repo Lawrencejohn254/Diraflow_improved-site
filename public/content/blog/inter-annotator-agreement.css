@@ -1,0 +1,6 @@
+/* per-post overrides vs components/blog-post.css */
+.pg-bp .progress-bar{position:fixed;top:68px;left:0;right:0;height:3px;background:var(--border);z-index:200;}
+.pg-bp .post-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.52) 55%,rgba(0,0,0,0.72) 100%);}
+.pg-bp .post-hero-cat{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#fff;padding:0.25rem 0.75rem;border-radius:2rem;background:#10b981;}
+.pg-bp .author-name{font-size:0.9rem;font-weight:700;color:var(--fg);}
+.pg-bp .author-card-name{font-size:1rem;font-weight:700;color:var(--fg);margin-bottom:0.2rem;}
