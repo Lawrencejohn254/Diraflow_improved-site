@@ -107,6 +107,9 @@ function internalEmailHtml(a: { name: string; email: string; position: string; s
 </html>`.trim();
 }
 
+// ilike treats % and _ as wildcards; escape them so an email is matched literally.
+const likeEscape = (s: string) => s.trim().replace(/[\\%_]/g, '\\$&');
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
   if (req.method !== 'POST') return json(req, { error: 'Method not allowed' }, 405);
@@ -128,7 +131,7 @@ Deno.serve(async (req: Request) => {
     const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
     const { data: app } = await supabase
       .from('applications').select('full_name,email,position,submitted_at')
-      .ilike('email', email.trim()).eq('position', position).gt('submitted_at', since)
+      .ilike('email', likeEscape(email)).eq('position', position).gt('submitted_at', since)
       .order('submitted_at', { ascending: false }).limit(1).maybeSingle();
     if (!app) return json(req, { error: 'No matching recent application' }, 404);
 

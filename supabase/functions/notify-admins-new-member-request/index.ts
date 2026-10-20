@@ -25,6 +25,9 @@ const json = (req: Request, body: unknown, status = 200) =>
 const esc = (s: unknown) =>
   String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]!));
 
+// ilike treats % and _ as wildcards; escape them so an email is matched literally.
+const likeEscape = (s: string) => s.trim().replace(/[\\%_]/g, '\\$&');
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors(req) });
   try {
@@ -35,7 +38,7 @@ Deno.serve(async (req) => {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data: request } = await supabase
       .from('team_members').select('email,role')
-      .ilike('email', email.trim()).eq('request_status', 'pending').gt('created_at', since).maybeSingle();
+      .ilike('email', likeEscape(email)).eq('request_status', 'pending').gt('created_at', since).maybeSingle();
     // Same response either way so this cannot be used to probe which emails exist.
     if (!request) return json(req, { ok: true, notified: 0 });
 

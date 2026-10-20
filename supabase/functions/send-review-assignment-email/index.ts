@@ -40,6 +40,9 @@ async function requireAdmin(req: Request) {
   return { admin } as const;
 }
 
+// ilike treats % and _ as wildcards; escape them so an email is matched literally.
+const likeEscape = (s: string) => s.trim().replace(/[\\%_]/g, '\\$&');
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors(req) });
   try {
@@ -51,7 +54,7 @@ Deno.serve(async (req) => {
 
     // The recipient must be an active reviewer/admin on the team — never an arbitrary address.
     const { data: reviewer } = await c.admin
-      .from('team_members').select('email,role,active').ilike('email', reviewerEmail.trim()).maybeSingle();
+      .from('team_members').select('email,role,active').ilike('email', likeEscape(reviewerEmail)).maybeSingle();
     if (!reviewer || !reviewer.active || !['reviewer', 'admin'].includes(reviewer.role)) {
       return json(req, { error: 'Recipient is not an active reviewer' }, 403);
     }

@@ -37,6 +37,9 @@ async function requireAdmin(req: Request) {
   return { admin } as const;
 }
 
+// ilike treats % and _ as wildcards; escape them so an email is matched literally.
+const likeEscape = (s: string) => s.trim().replace(/[\\%_]/g, '\\$&');
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors(req) });
   try {
@@ -49,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     // Only ever email someone who actually has a team account request on file.
-    const { data: member } = await c.admin.from('team_members').select('email').ilike('email', email.trim()).maybeSingle();
+    const { data: member } = await c.admin.from('team_members').select('email').ilike('email', likeEscape(email)).maybeSingle();
     if (!member) return json(req, { error: 'No account request found for that email' }, 404);
 
     const approved = decision === 'approved';
