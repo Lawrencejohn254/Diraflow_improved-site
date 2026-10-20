@@ -5,7 +5,7 @@ import { SiteHeader, SiteFooter } from '@/components/SiteChrome';
 import './styles.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://diraflow.ai'),
+  metadataBase: new URL('https://diraflowai.com'),
   title: { default: 'Diraflow — Premium Training Data for AI', template: '%s' },
 };
 
