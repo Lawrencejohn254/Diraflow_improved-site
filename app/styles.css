@@ -1903,3 +1903,12 @@ footer {
 body.drawer-open { overflow: hidden; }
 /* Phase 2: a closed drawer no longer leaks its shadow onto the right edge of every page. */
 .drawer:not(.open) { box-shadow: none; }
+
+/* ── Phase 3: behaviour that used to be inline JS handlers / main.js ── */
+html[data-scrolled] nav.top { box-shadow: 0 2px 24px rgba(0,0,0,.1); }
+/* The old inline handler sat on the <img>, but a gradient overlay covers it, so it never fired. Trigger from the cell instead. */
+.hover-zoom { transition: transform .5s ease; }
+.vm-cell:hover .hover-zoom { transform: scale(1.05); }
+.social-icon:hover { transform: translateY(-3px); opacity: .85; }
+.footer-legal-link:hover { color: #c8922a !important; }
+form#brief-form input:focus, form#brief-form textarea:focus { border-color: #c8922a !important; }

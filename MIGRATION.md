@@ -1,45 +1,55 @@
 # Diraflow: static HTML -> Next.js (App Router)
 
     npm install
-    npm run dev          # http://localhost:3000
+    cp .env.example .env.local     # then fill in the values (see "Before you deploy")
+    npm run dev                    # http://localhost:3000
     npm run build && npm start
+
+## Before you deploy (important)
+1. **Report form endpoint.** `report.html` shipped with the placeholder `https://formspree.io/f/YOUR_FORM_ID`, so every whistleblowing report on the old site failed. Create a Formspree form for it and set `NEXT_PUBLIC_REPORT_FORMSPREE_URL`. Until then the form shows its error state (with the contact@ email fallback) instead of silently dropping reports.
+2. **Supabase env vars.** Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel. `lib/supabase.ts` falls back to the values that were hard-coded in `careers.html` so nothing breaks, but remove the fallbacks once the env vars exist. The anon key is public by design; **Row Level Security is what protects `applications`, `talent_pool` and the `resumes` bucket** — please verify the policies (anonymous users should be able to INSERT only, never SELECT).
+3. **Policy acknowledgement is not saved anywhere.** The "Submit Acknowledgement" box on the privacy-policy page was UI-only in the old site and still is (see `components/AckBox.tsx`). Employees believe they are signing something. Wire it to a table or Formspree, or remove it.
 
 ## Status
 
-**Phase 1 (done):** every page converted, URLs preserved, old `.html` URLs redirect (`next.config.ts`).
+**Phase 1 (done):** every page converted, URLs preserved, old `.html` URLs redirect.
+**Phase 2 (done):** one layout (shared nav/drawer/footer), scoped CSS for pages with their own look, data-driven annotation pages (`content/services.json`) and blog (`content/blog/*`).
+**Phase 3 (done, except the admin app):** all page scripts are now React; the temporary shim (`LegacyScripts`, `legacy-bridge`, `legacy-main`) is deleted and nothing references it.
 
-**Phase 2 (done):**
-- One root layout (`app/layout.tsx`): shared nav, mobile drawer, footer on **every** page. No more full-page reloads between "groups". Nav highlights the right item (Solutions on annotation pages, Blog on posts, Industries on industry pages).
-- Former standalone pages (solutions, team, healthcare, industry-detail, image-annotation, data-classification, featured blog post) keep their own look via **scoped CSS**: each page's CSS is prefixed with `.pg-<key>`, its tokens are re-declared on that wrapper, chrome/reset rules are dropped, and any class that collided with `styles.css` is renamed (`sv-`, `bp-`, ...). Verified against the old pages with screenshots.
-- **Annotation pages are data-driven:** `/3d-lidar`, `/audio-annotation`, `/nlp-annotation`, `/video-annotation` are rendered by `components/ServicePage.tsx` from `content/services.json` (route: `app/[service]/page.tsx`). Visible text and images are identical to the old pages. Add a service = add a JSON record (+ images in `public/`). The brief form is a real React component (`BriefForm`) that posts to Formspree and shows success/error inline.
-- **Blog is data-driven:** `content/blog/index.json` (listing cards), `posts.json` (post metadata), `<slug>.html` (article body), `<slug>.css` (small per-post overrides, e.g. category badge colour). `components/BlogPost.tsx` + `app/blog-posts/[slug]` render six posts; `components/BlogIndex.tsx` renders `/blog` with a working category filter. "Related posts" are computed from the data (the old hard-coded links were broken). Reading-progress bar and copy-link are React components.
+| Page | Now |
+|---|---|
+| Careers | `components/CareersModals.tsx` (assessment + talent-pool modals), `CareerButton`, questions in `content/careers.ts`. Same Supabase tables (`job_settings`, `applications`, `talent_pool`), `resumes` bucket and `send-application-email` edge function; same payload fields. Uses `@supabase/supabase-js` from npm (the 200 KB `assets/supabase.js` is deleted). |
+| Contact | `components/tabs.tsx` + `components/forms.tsx` (`FormspreeForm`, `FormSubmit`, `FormMessage`). |
+| Report | `components/ReportForm.tsx`. Anonymous mode now truly excludes the identity fields (disabled `<fieldset>`); the old page only dimmed them, so typed data was still sent. Reference numbers use `crypto.getRandomValues`. |
+| Home, Industries, Solutions, Image annotation | the four "brief" forms use the shared form components; stats use `components/CountUp.tsx`; the ticker loops via duplicated (aria-hidden) items. |
+| Industries / Industry detail | cards link to detail pages with real navigation. `/industry-detail?industry=<id>` is now **server-rendered** from `content/industries.json` (real title/description per industry for SEO and link previews; unknown id falls back to automotive as before). |
+| Privacy policy | scroll-spy sidebar (`PolicyScrollSpy`), acknowledgement box (`AckBox`). |
+| Site-wide | `components/SiteEffects.tsx`: nav shadow on scroll, card reveal-on-scroll (skipped for `prefers-reduced-motion`), card tilt. Hover/focus effects that were inline JS handlers are CSS in `app/styles.css`. |
+| Admin | **not rewritten** (see below). |
 
-**Phase 3 (todo):** port the remaining legacy scripts to React (careers form + Supabase insert, contact tabs, report form, industry-detail content, privacy acknowledgement), replace `public/assets/supabase.js` with `@supabase/supabase-js`, rewrite `/admin` (currently `public/_legacy/admin.html`, served unchanged) with auth middleware.
-**Phase 4 (todo):** `next/image`, compress `Mark.png` (1.9 MB) / `Martin.jpg` (4.3 MB), `sitemap.ts`/`robots.ts`, convert blog bodies to MDX.
+## The admin app
+`/admin` serves `public/_legacy/admin.html` unchanged: ~6,800 lines, 27 Supabase tables, roles/sessions/leave/tasks/PII-view logging, 8 edge functions, AI assist, Chart.js and jsPDF from jsDelivr. It authenticates with Supabase Auth and relies on RLS server-side, so serving it as a static file is acceptable. A React rewrite is a project of its own and should not be done without a test Supabase project to run it against. What was done instead: `/admin` is `noindex, nofollow, noarchive`, `Cache-Control: no-store`, `X-Frame-Options: DENY`, disallowed in `robots.txt`, and the duplicate public URL `/_legacy/admin.html` redirects to `/admin`. Suggested approach when you want it: move one tab at a time (Applications first) into `app/admin/**` behind Next middleware that checks the Supabase session, keeping the old file as a fallback until each tab is verified.
 
-## What is still "legacy"
-- `components/LegacyScripts.tsx`, `lib/legacy-bridge.ts`, `lib/legacy-main.ts`: temporary shim keeping the original inline JS and `onclick="..."` handlers working on careers, contact, industries, privacy-policy, report, industry-detail and the home page. `scripts/conversion-report.txt` lists every handler it covers.
-- `app/blog-posts/agentic-evaluation-datasets`, `app/image-annotation`, `app/data-classification`, `app/solutions`, `app/team`, `app/healthcare-life-sciences`, `app/industry-detail`: converted 1:1 (not templated). The featured post has a different hero layout; image-annotation and data-classification use card/grid layouts the service template doesn't model yet.
-- `scripts/convert.mjs`, `extract-services.py`, `extract-blog.py` are one-shot migration tools. `convert.mjs` overwrites pages, so stop running it once you hand-edit them.
+## Layout
+- `app/` routes. `app/[service]` and `app/blog-posts/[slug]` are data-driven; `app/layout.tsx` is the single root layout.
+- `components/` shared UI. `chrome.generated.tsx` is the nav/drawer/footer (generated once from `index.html`, now hand-maintained).
+- `content/` services, blog, industries, careers questions. `lib/` Supabase and blog loaders.
+- `scripts/convert.mjs`, `extract-*.py`: one-shot migration tools (they overwrite pages — don't re-run once you edit by hand).
 
-## Decision needed: one design system
-The two old design systems are genuinely different (e.g. gold `#c8a96e` vs `#c8922a`, `.container-wide` 90% vs 1160px, different text greys). Scoped CSS keeps each page looking as it did, so nothing shifts today. Truly unifying means choosing one set of tokens and accepting visible changes on ~10 pages. Recommended: keep the `styles.css` tokens, delete the `.pg-*` token blocks, review each page once.
+## Remaining pages converted 1:1 (not templated)
+`/solutions`, `/team`, `/healthcare-life-sciences`, `/image-annotation`, `/data-classification`, `/blog-posts/agentic-evaluation-datasets` keep per-page scoped CSS.
 
-## Bugs found in the old site (fixed unless noted)
-Fixed in the migration:
-1. `assets/main.js` had `import` lines in a classic `<script>` -> syntax error -> none of it ran (scroll reveals, counters, modals, forms). Now ported and running; the home page will animate where it didn't before.
-2. Blog category filter called an undefined `filterPosts()`. Now a working filter.
-3. Related-post links on blog posts: 2 pointed to a non-existent slug and the rest were relative to the wrong folder (404). Now computed from data.
-4. Related-post blurbs were inconsistent between posts (e.g. "50,000" vs "5,000 adversarial prompts"). Single source of truth now.
-5. Inline `@media` inside `style=""` on annotation pages is invalid CSS, so rows never stacked on mobile. Now real CSS; they stack.
-6. Closed mobile drawer leaked its shadow onto the right edge of every page.
-7. CSP blocked the Pexels videos (`default-src 'self'`) and `frame-ancestors 'none'` contradicted `X-Frame-Options: SAMEORIGIN`. Fixed in `next.config.ts`.
-8. Typos in two posts' CSS (`max: width 500px;px;`) normalised to match the other posts.
+## Decisions for you
+- **Design system:** the two old systems differ (gold `#c8a96e` vs `#c8922a`, container widths, greys). Scoped CSS preserves each page. Unifying = visible change on ~10 pages.
+- **Home page stat:** the second counter's static text says "15+" but its animation target was 90. I kept what visitors actually saw (15+). Tell me if 90+ is the real number.
+- **Dark mode:** the old `main.js` would have switched dark-mode visitors to a dark theme, but it never ran in production and no page has a toggle. Not ported. If you want dark mode it needs a real design pass first.
+- **Copy errors:** "Nine specialized annotation types" appears on 3D/LIDAR, NLP and video pages that list 6, 6 and 4 (audio says eight, lists 6).
+- **Broken links:** 28 links to non-existent `services/*.html` (rlhf, red-teaming, environment, agentic).
+- **Domain:** robots.txt says diraflow.ai; sitemap, og:url, canonicals, share links say diraflowai.com.
+- **Old repo hygiene:** `node_modules/` and `supabase/.temp/*` are committed; hot-linked Unsplash/Pexels images should move into `public/`.
 
-**Not fixed, need your call:**
-- Copy says "Nine specialized annotation types" on the 3D/LIDAR, NLP and video pages but they list 6, 6 and 4 (audio says eight, lists 6).
-- 28 links to non-existent `services/*.html` (rlhf, red-teaming, environment, agentic) still 404.
-- Domain mismatch: `robots.txt` says diraflow.ai; sitemap, og:url, canonicals and share links say diraflowai.com.
-- Confirm Supabase Row Level Security on `applications` and `talent_pool` (anon key is public in `careers.html` / `admin.html`); move the key to an env var in Phase 3.
-- Old repo: `node_modules/` and `supabase/.temp/*` are committed; add to `.gitignore`.
-- Several Unsplash/Pexels hero images are hot-linked: move them into `public/` for reliability.
+## Bugs in the old site, fixed during migration
+`main.js` syntax error (nothing ran); dead blog filter; related-post 404s; inconsistent related blurbs; annotation rows never stacked on mobile; closed drawer leaked a shadow on the right edge; CSP blocked Pexels videos; invalid CSS in two posts; report form placeholder endpoint; anonymous report still sending typed identity; home image hover-zoom never fired (an overlay covered the image) — now triggered from its card.
+
+## Phase 4 (optional polish)
+`next/image` + compress `Mark.png` (1.9 MB) / `Martin.jpg` (4.3 MB), `sitemap.ts`, blog bodies to MDX, unify design tokens, template the remaining 1:1 pages.

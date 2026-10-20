@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
-import LegacyBridge from './LegacyBridge';
 
 /** Shared <html>/<body> shell used by both route-group root layouts. */
 export default function RootShell({ children }: { children: ReactNode }) {
@@ -14,7 +13,6 @@ export default function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
-        <LegacyBridge />
         <Analytics />
       </body>
     </html>

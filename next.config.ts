@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/index.html', destination: '/', permanent: true },
+      // The admin app lives at one URL only (/admin); the file behind the rewrite is not a public address.
+      { source: '/_legacy/admin.html', destination: '/admin', permanent: true },
       { source: '/blog-posts/:slug.html', destination: '/blog-posts/:slug', permanent: true },
       { source: '/:page(blog|careers|contact|industries|solutions|team|report|admin|privacy-policy|code-of-conduct|3d-lidar|audio-annotation|data-classification|healthcare-life-sciences|image-annotation|industry-detail|nlp-annotation|video-annotation).html', destination: '/:page', permanent: true },
     ];
@@ -29,7 +31,17 @@ const nextConfig: NextConfig = {
     return { beforeFiles: [{ source: '/admin', destination: '/_legacy/admin.html' }], afterFiles: [], fallback: [] };
   },
   async headers() {
-    return [{
+    return [
+    {
+      // Internal back-office: never indexed, never cached by browsers/CDNs/proxies.
+      source: '/admin',
+      headers: [
+        { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+        { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+      ],
+    },
+    {
       source: '/(.*)',
       headers: [
         { key: 'Content-Security-Policy', value: csp },
