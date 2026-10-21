@@ -225,6 +225,7 @@
 
   /* ── DASHBOARD STAT CARDS (solid colors) ── */
   .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (min-width: 901px) { #dash-root .stats-row { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: .75rem; } }
   .stat-card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
     padding: 1.1rem 1.25rem; position: relative; overflow: hidden;
@@ -734,6 +735,11 @@ tbody tr.clickable:hover{ background:var(--bg2); }
 .dash-up{ border-left:3px solid var(--primary); padding:.65rem .85rem; background:var(--bg); border-radius:8px; margin-bottom:.6rem; cursor:pointer; }
 .dash-up:hover{ background:var(--bg2); }
 .dash-empty{ color:var(--fg2); font-size:.8125rem; padding:1.25rem 0; text-align:center; }
+.dash-bar{ margin-bottom:.85rem; }
+.dash-bar .db-top{ display:flex; justify-content:space-between; gap:.5rem; font-size:.8125rem; margin-bottom:.3rem; }
+.dash-bar .db-top span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.dash-bar .db-track{ height:8px; border-radius:4px; background:var(--bg2); overflow:hidden; }
+.dash-bar .db-track i{ display:block; height:100%; border-radius:4px; background:var(--primary); }
 .dash-actions{ display:flex; gap:.4rem; }
 .dash-btn{ border:1px solid var(--primary); border-radius:6px; padding:.3rem .65rem; font-size:.72rem; font-weight:700; cursor:pointer; font-family:inherit; background:var(--card); color:var(--primary); }
 .dash-btn.ok{ background:var(--primary); color:#fff; }
@@ -6107,6 +6113,7 @@ let mpeCurrentId = null;
   // ══════════════════════ ACTIVITY — MEMBER DRILL-DOWN ══════════════════════
   
   let currentMemberShifts = [0,0,0,0,0,0,0]; // Sun–Sat expected hours
+  let currentMemberShiftStarts = ['','','','','','','']; // Sun–Sat start time "HH:MM" ('' = not set)
   const WEEKDAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 
@@ -6134,7 +6141,11 @@ let mpeCurrentId = null;
     currentActivityMemberSessions = sessionsRes.data || [];
     currentActivityMemberLog = logRes.data || [];
     currentMemberShifts = [0,0,0,0,0,0,0];
-    (shiftsRes.data || []).forEach(s => { currentMemberShifts[s.day_of_week] = s.expected_hours; });
+    currentMemberShiftStarts = ['','','','','','',''];
+    (shiftsRes.data || []).forEach(s => {
+      currentMemberShifts[s.day_of_week] = s.expected_hours;
+      currentMemberShiftStarts[s.day_of_week] = s.start_time ? String(s.start_time).slice(0, 5) : '';
+    });
     renderShiftEditor();
 
     document.getElementById('activity-list-view').style.display = 'none';
@@ -6213,6 +6224,7 @@ let mpeCurrentId = null;
       <div class="info-item">
         <div class="info-key">${label}</div>
         <input type="number" min="0" max="24" step="0.5" value="${currentMemberShifts[i]}" id="shift-day-${i}" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:.4rem; font-family:inherit;">
+        <input type="time" value="${currentMemberShiftStarts[i]}" id="shift-start-${i}" title="Shift start (used to flag late arrivals on the dashboard)" aria-label="${label} shift start time" style="width:100%; margin-top:.35rem; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:.4rem; font-family:inherit;">
       </div>
     `).join('');
   }
@@ -6224,12 +6236,14 @@ let mpeCurrentId = null;
       team_member_id: currentActivityMemberId,
       day_of_week: i,
       expected_hours: parseFloat(document.getElementById(`shift-day-${i}`).value) || 0,
+      start_time: document.getElementById(`shift-start-${i}`).value || null,
       updated_by: currentUser.id,
       updated_at: new Date().toISOString()
     }));
     const { error } = await sb.from('shifts').upsert(rows, { onConflict: 'team_member_id,day_of_week' });
     if (error) { msg.textContent = 'Error saving: ' + error.message; msg.className = 'save-msg err show'; return; }
     currentMemberShifts = rows.map(r => r.expected_hours);
+    currentMemberShiftStarts = rows.map(r => r.start_time || '');
     msg.textContent = 'Schedule saved.';
     msg.className = 'save-msg ok show';
     setTimeout(() => { msg.className = 'save-msg'; }, 3000);
@@ -7009,10 +7023,98 @@ let mpeCurrentId = null;
   // ── Boot ──────────────────────────────────────────────────────
   
 ;(function dashboardRuntime() {
-  const DASH_CHARTS = ['chart-dash-trend', 'chart-dash-time', 'chart-dash-talent', 'chart-dash-country'];
-  let dashSessions = [], dashUpcoming = [], dashLoading = false;
+  const DASH_CHARTS = ['chart-dash-trend', 'chart-dash-time', 'chart-dash-talent', 'chart-dash-country', 'chart-dash-leave', 'chart-dash-attendance'];
+  let dashSessions = [], dashUpcoming = [], dashShifts = [], dashLoading = false;
   const D = id => document.getElementById(id);
   const isAdminUser = () => !!currentMember && currentMember.role === 'admin';
+
+  // <dash-model>  Pure calculations for the Phase 3 widgets (no DOM, no globals; unit-tested outside the browser).
+  // Shift start times are wall-clock times read in the viewing browser's time zone.
+  const LATE_GRACE_MIN = 15;
+  const pad2 = n => String(n).padStart(2, '0');
+  const keyOf = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const startMinutes = t => {
+    if (!t) return null;
+    const p = String(t).split(':'), h = Number(p[0]), m = Number(p[1] || 0);
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+  };
+
+  // members: [{id}]  shifts: [{team_member_id, day_of_week, expected_hours, start_time}]
+  // sessions: [{team_member_id, login_at}]  leave: [{team_member_id, status, start_date, end_date}]
+  function computeAttendance(members, shifts, sessions, leave, now, days) {
+    const sched = {};
+    shifts.forEach(s => {
+      if (Number(s.expected_hours) > 0) { (sched[s.team_member_id] = sched[s.team_member_id] || {})[s.day_of_week] = s; }
+    });
+    const out = {
+      days: [], hasSchedule: Object.keys(sched).length > 0,
+      hasStartTimes: shifts.some(s => Number(s.expected_hours) > 0 && s.start_time),
+      totals: { onTime: 0, late: 0, absent: 0, present: 0 }, lateToday: [], scheduledToday: 0
+    };
+    const todayKey = keyOf(now), nowMin = now.getHours() * 60 + now.getMinutes();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i); // noon avoids DST edges
+      const key = keyOf(d), dow = d.getDay(), isToday = key === todayKey;
+      const row = { key, dow, onTime: 0, late: 0, absent: 0, present: 0 };
+      members.forEach(m => {
+        const mine = sessions.filter(s => s.team_member_id === m.id && keyOf(new Date(s.login_at)) === key);
+        if (mine.length) row.present++;
+        const sh = sched[m.id] && sched[m.id][dow];
+        if (!sh) return;
+        if (isToday) out.scheduledToday++;
+        const onLeave = leave.some(r => r.status === 'Approved' && r.team_member_id === m.id && key >= r.start_date && key <= r.end_date);
+        if (onLeave) return;
+        const st = startMinutes(sh.start_time);
+        if (mine.length) {
+          const first = mine.reduce((a, s) => (new Date(s.login_at) < new Date(a.login_at) ? s : a));
+          const f = new Date(first.login_at), fm = f.getHours() * 60 + f.getMinutes();
+          if (st != null && fm > st + LATE_GRACE_MIN) {
+            row.late++;
+            if (isToday) out.lateToday.push({ member_id: m.id, minutes: fm - st, at: first.login_at });
+          } else row.onTime++;
+        } else if (!isToday || (st != null && nowMin > st + Number(sh.expected_hours) * 60)) {
+          row.absent++; // today only counts once the shift is over
+        }
+      });
+      out.totals.onTime += row.onTime; out.totals.late += row.late; out.totals.absent += row.absent; out.totals.present += row.present;
+      out.days.push(row);
+    }
+    out.lateToday.sort((a, b) => b.minutes - a.minutes);
+    return out;
+  }
+
+  function computeLeaveSummary(leave, now) {
+    const year = String(now.getFullYear()), today = keyOf(now);
+    const rows = leave.filter(r => r.status !== 'Rejected' && String(r.start_date).slice(0, 4) === year);
+    const byType = {};
+    rows.forEach(r => { const t = r.leave_type || 'Other'; byType[t] = (byType[t] || 0) + 1; });
+    const onLeaveToday = leave.filter(r => r.status === 'Approved' && today >= r.start_date && today <= r.end_date).length;
+    return { byType, total: rows.length, onLeaveToday };
+  }
+
+  function computeTeamSummary(team, now) {
+    const active = team.filter(m => m.active);
+    const roles = { admin: 0, reviewer: 0, viewer: 0 };
+    active.forEach(m => { roles[m.role] = (roles[m.role] || 0) + 1; });
+    const types = {};
+    active.forEach(m => { if (m.employment_type) types[m.employment_type] = (types[m.employment_type] || 0) + 1; });
+    return {
+      active: active.length, roles, types,
+      pending: team.filter(m => m.request_status === 'pending').length,
+      disabled: team.filter(m => !m.active && m.request_status !== 'pending' && m.request_status !== 'rejected').length,
+      joined30: active.filter(m => m.created_at && now - new Date(m.created_at) < 30 * 86400000).length
+    };
+  }
+
+  function computeTopReviewers(apps, talent, team) {
+    const counts = {};
+    apps.forEach(a => { if (a.reviewed_at && a.assigned_reviewer_id) counts[a.assigned_reviewer_id] = (counts[a.assigned_reviewer_id] || 0) + 1; });
+    talent.forEach(t => { if (t.reviewed_at && t.owner_id) counts[t.owner_id] = (counts[t.owner_id] || 0) + 1; });
+    return Object.keys(counts)
+      .map(id => ({ id, n: counts[id], label: (team.find(m => m.id === id) || {}).email || 'Former member' }))
+      .sort((a, b) => b.n - a.n).slice(0, 5);
+  }
+  // </dash-model>
 
   async function loadDashboard(force) {
     if (dashLoading) return;
@@ -7032,12 +7134,14 @@ let mpeCurrentId = null;
       await Promise.allSettled(jobs);
 
       const since = new Date(Date.now() - 7 * 86400000).toISOString();
-      const [sRes, cRes] = await Promise.all([
+      const [sRes, cRes, shRes] = await Promise.all([
         sb.from('activity_sessions').select('*').gte('login_at', since),
-        sb.from('calendar_events').select('*').gte('start_at', new Date().toISOString()).order('start_at').limit(8)
+        sb.from('calendar_events').select('*').gte('start_at', new Date().toISOString()).order('start_at').limit(8),
+        sb.from('shifts').select('*') // admins get everyone's schedule; other roles get only their own (RLS)
       ]);
       dashSessions = sRes.data || [];
       dashUpcoming = cRes.data || [];
+      dashShifts = shRes.data || [];
       renderDashboard();
     } catch (e) {
       console.error('Dashboard load failed:', e);
@@ -7064,12 +7168,26 @@ let mpeCurrentId = null;
     const myOverdue = myTasks.filter(t => t.due_at && new Date(t.due_at) < new Date()).length;
     const kpis = computeInsightsKPIs(apps);
 
+    // Phase 3 models: admins see the whole team; everyone else sees only their own attendance (RLS scopes the rows).
+    const nowDate = new Date();
+    const crew = admin ? allTeamMembers.filter(m => m.active) : [currentMember];
+    const att = computeAttendance(crew, dashShifts, dashSessions, allLeaveRequests, nowDate, 7);
+    const leaveSum = computeLeaveSummary(allLeaveRequests, nowDate);
+    const teamSum = computeTeamSummary(allTeamMembers, nowDate);
+    const topReviewers = admin ? computeTopReviewers(apps, allTalentPool, allTeamMembers) : [];
+
     const h = new Date().getHours();
     D('dash-greeting').textContent =
       (h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + ', ' + (currentMember.email || '').split('@')[0];
 
     const kpi = (color, dim, num, label, chip) =>
       `<div class="stat-card" style="--stat-color:${color}; --stat-dim:${dim};"><div class="stat-num">${num}</div><div class="stat-label">${label}</div>${chip || ''}</div>`;
+    const adminKpis = admin
+      ? kpi('var(--teal)', 'var(--teal-dim)', teamSum.active, 'Team members',
+          `<span class="dash-chip ${teamSum.joined30 ? '' : 'neutral'}">+${teamSum.joined30} joined this month</span>`) +
+        kpi('var(--red)', 'var(--red-dim)', att.hasStartTimes ? att.lateToday.length : '—', 'Late arrivals today',
+          `<span class="dash-chip ${att.lateToday.length ? 'warn' : 'neutral'}">${att.hasStartTimes ? 'of ' + att.scheduledToday + ' scheduled' : 'Set shift start times'}</span>`)
+      : '';
     const kpiRow = '<div class="stats-row">' +
       kpi('var(--primary)', 'var(--primary-dim)', apps.length, 'Total applications',
         `<span class="dash-chip ${newThisWeek ? '' : 'neutral'}">+${newThisWeek} this week</span>`) +
@@ -7081,6 +7199,7 @@ let mpeCurrentId = null;
         `<span class="dash-chip neutral">${kpis.avgHiringDays != null ? kpis.avgHiringDays.toFixed(1) + 'd to decision' : 'No decisions yet'}</span>`) +
       kpi('var(--purple)', 'var(--purple-dim)', myTasks.length, 'My open tasks',
         `<span class="dash-chip ${myOverdue ? 'warn' : 'neutral'}">${myOverdue ? myOverdue + ' overdue' : 'None overdue'}</span>`) +
+      adminKpis +
       '</div>';
 
     // Recruitment statistics (segmented bar + legend)
@@ -7173,13 +7292,104 @@ let mpeCurrentId = null;
           </div>`).join('') : '<div class="dash-empty">You have no open tasks.</div>'}
       </div>`;
 
+    // ── Phase 3 cards ────────────────────────────────────────────
+    const cap = s => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+    const PALETTE = ['#F26522', '#0F4C5C', '#F5B50A', '#10B981', '#8B5CF6', '#EF4444'];
+    const ROLE_COL = { admin: '#F26522', reviewer: '#0F4C5C', viewer: '#F5B50A' };
+    const segOf = (map, keys, colorFor, whole) => keys.map(k =>
+      `<span title="${esc(cap(k))}" style="width:${(map[k] / (whole || 1)) * 100}%; background:${colorFor(k)};"></span>`).join('');
+    const legendOf = (map, keys, colorFor) => keys.map(k =>
+      `<div><div class="dl-k"><i class="dash-dot" style="background:${colorFor(k)};"></i>${esc(cap(k))}</div><div class="dl-v">${map[k]}</div></div>`).join('');
+
+    // Team status (admin): who is on the team, by role, plus anything awaiting action.
+    const roleKeys = Object.keys(teamSum.roles).filter(r => teamSum.roles[r]);
+    const typeKeys = Object.keys(teamSum.types);
+    const teamCard = admin ? `
+      <div class="dash-card">
+        <div class="dash-card-h"><h3>Team status</h3><a class="dash-link" onclick="switchTab('members')">Manage</a></div>
+        <div class="dash-mini">
+          <div><b>${teamSum.active}</b><span>Active</span></div>
+          <div><b>${teamSum.pending}</b><span>Pending</span></div>
+          <div><b>${teamSum.disabled}</b><span>Disabled</span></div>
+        </div>
+        <div class="dash-seg">${segOf(teamSum.roles, roleKeys, k => ROLE_COL[k] || '#9CA3AF', teamSum.active)}</div>
+        <div class="dash-legend">${legendOf(teamSum.roles, roleKeys, k => ROLE_COL[k] || '#9CA3AF')}</div>
+        ${typeKeys.length ? `<div class="dash-seg" style="margin-top:1rem;">${segOf(teamSum.types, typeKeys, k => PALETTE[typeKeys.indexOf(k) % PALETTE.length], teamSum.active)}</div>
+        <div class="dash-legend">${legendOf(teamSum.types, typeKeys, k => PALETTE[typeKeys.indexOf(k) % PALETTE.length])}</div>` : ''}
+      </div>` : '';
+
+    // Leave by type (this year, pending + approved).
+    const leaveTypes = Object.keys(leaveSum.byType).sort((a, b) => leaveSum.byType[b] - leaveSum.byType[a]);
+    const leaveCard = `
+      <div class="dash-card">
+        <div class="dash-card-h"><h3>Leave by type</h3><a class="dash-link" onclick="switchTab('leave')">Leave</a></div>
+        <div class="dash-mini" style="grid-template-columns:repeat(2,1fr);">
+          <div><b>${leaveSum.onLeaveToday}</b><span>On leave today</span></div>
+          <div><b>${leaveSum.total}</b><span>Requests in ${nowDate.getFullYear()}</span></div>
+        </div>
+        ${leaveTypes.length
+          ? `<div class="dash-canvas" style="height:150px;"><canvas id="chart-dash-leave"></canvas></div>
+             <div class="dash-legend">${legendOf(leaveSum.byType, leaveTypes, k => PALETTE[leaveTypes.indexOf(k) % PALETTE.length])}</div>`
+          : '<div class="dash-empty">No leave requests this year.</div>'}
+      </div>`;
+
+    // Late arrivals today (admin).
+    const lateRows = att.lateToday.slice(0, 5).map(l => {
+      const m = allTeamMembers.find(x => x.id === l.member_id) || {};
+      return `
+        <div class="dash-row" style="cursor:default;">
+          <span class="row-avatar">${initialsOf(m.email || '?')}</span>
+          <div class="dr-main"><div class="dr-name">${esc(m.email || 'Member')}</div><div class="dr-sub">${esc(cap(m.role))} · in at ${new Date(l.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div></div>
+          <span class="dash-chip warn" style="margin:0;">+${l.minutes} min</span>
+        </div>`;
+    });
+    const lateEmpty = !att.hasStartTimes ? 'Add shift start times (Activity → a member → schedule) to flag late arrivals.'
+      : att.scheduledToday === 0 ? 'Nobody is scheduled today.' : 'No late arrivals today.';
+    const lateCard = admin ? `
+      <div class="dash-card">
+        <div class="dash-card-h"><h3>Late arrivals today</h3><span class="dash-chip ${att.lateToday.length ? 'warn' : 'neutral'}" style="margin:0;">${att.hasStartTimes ? att.lateToday.length : '—'}</span></div>
+        ${lateRows.length ? lateRows.join('') : `<div class="dash-empty">${lateEmpty}</div>`}
+      </div>` : '';
+
+    // Attendance trend: scheduled days only when shifts exist, otherwise plain check-ins.
+    const checkinMembers = new Set(dashSessions.map(s => s.team_member_id)).size;
+    const avgActiveH = att.totals.present ? dashSessions.reduce((t, s) => t + (s.active_seconds || 0), 0) / 3600 / att.totals.present : 0;
+    const attMini = att.hasSchedule
+      ? `<div><b>${att.totals.onTime}</b><span>On time</span></div><div><b>${att.totals.late}</b><span>Late</span></div><div><b>${att.totals.absent}</b><span>Absent</span></div>`
+      : `<div><b>${att.totals.present}</b><span>Check-ins</span></div><div><b>${checkinMembers}</b><span>${admin ? 'Members active' : 'Days active'}</span></div><div><b>${avgActiveH.toFixed(1)}h</b><span>Avg active / day</span></div>`;
+    const attendanceCard = `
+      <div class="dash-card">
+        <div class="dash-card-h"><h3>${admin ? 'Attendance trend' : 'My attendance'}</h3><span class="dash-chip neutral" style="margin:0;">Last 7 days</span></div>
+        <div class="dash-mini">${attMini}</div>
+        <div class="dash-canvas" style="height:190px;"><canvas id="chart-dash-attendance"></canvas></div>
+        ${admin && !att.hasSchedule ? '<div class="dash-empty" style="padding:.6rem 0 0;">No schedules set yet — add shifts in Activity to track on-time, late and absent.</div>' : ''}
+      </div>`;
+
+    // Top reviewers (admin): completed reviews per reviewer across applications and the talent pool.
+    const maxReviews = topReviewers.length ? topReviewers[0].n : 1;
+    const reviewersCard = admin ? `
+      <div class="dash-card">
+        <div class="dash-card-h"><h3>Top reviewers</h3><a class="dash-link" onclick="switchTab('assignments')">Assignments</a></div>
+        ${topReviewers.length ? topReviewers.map(r => `
+          <div class="dash-bar"><div class="db-top"><span>${esc(r.label)}</span><b>${r.n}</b></div><div class="db-track"><i style="width:${(r.n / maxReviews) * 100}%;"></i></div></div>`).join('')
+          : '<div class="dash-empty">No completed reviews yet.</div>'}
+      </div>` : '';
+
+    const peopleRows = admin
+      ? `<div class="dash-grid dash-g-3">${teamCard}${leaveCard}${lateCard}</div>` +
+        `<div class="dash-grid dash-g-2-1">${attendanceCard}${reviewersCard}</div>`
+      : `<div class="dash-grid dash-g-1-1">${leaveCard}${attendanceCard}</div>`;
+
     D('dash-root').innerHTML = kpiRow +
       `<div class="dash-grid dash-g-2-1">${recruitCard}${attentionCard}</div>` +
+      peopleRows +
       `<div class="dash-grid dash-g-2-1">${trendCard}${upcomingCard}</div>` +
       `<div class="dash-grid dash-g-3">${timeCard}${talentCard}${countryCard}</div>` +
       `<div class="dash-grid ${admin ? 'dash-g-1-1' : ''}">${approvalsCard}${tasksCard}</div>`;
 
     if (typeof Chart === 'undefined') return;
+
+    renderDashExtraCharts(att, leaveSum);
 
     // Trend: last 8 weeks
     const weeks = [];
@@ -7227,6 +7437,32 @@ let mpeCurrentId = null;
       labels: top.map(e => e[0]),
       datasets: [{ label: 'Applications', data: top.map(e => e[1]), backgroundColor: '#F26522', borderRadius: 6 }]
     }, { indexAxis: 'y' });
+  }
+
+  // Phase 3 charts: attendance (stacked per day) and leave by type (doughnut). Canvases only exist when there is data.
+  function renderDashExtraCharts(att, leaveSum) {
+    const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    if (D('chart-dash-attendance')) {
+      const stack = { borderRadius: 4, stack: 's' };
+      const datasets = att.hasSchedule
+        ? [
+            { label: 'On time', data: att.days.map(d => d.onTime), backgroundColor: '#10B981', ...stack },
+            { label: 'Late', data: att.days.map(d => d.late), backgroundColor: '#F5B50A', ...stack },
+            { label: 'Absent', data: att.days.map(d => d.absent), backgroundColor: '#EF4444', ...stack }
+          ]
+        : [{ label: 'Logged in', data: att.days.map(d => d.present), backgroundColor: '#F26522', ...stack }];
+      upsertChart('chart-dash-attendance', 'bar', { labels: att.days.map(d => DAY[d.dow]), datasets }, {
+        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#E5E7EB' } } },
+        plugins: { legend: { display: true, position: 'bottom' } }
+      });
+    }
+    if (D('chart-dash-leave')) {
+      const PALETTE = ['#F26522', '#0F4C5C', '#F5B50A', '#10B981', '#8B5CF6', '#EF4444'];
+      const types = Object.keys(leaveSum.byType).sort((a, b) => leaveSum.byType[b] - leaveSum.byType[a]);
+      upsertChart('chart-dash-leave', 'doughnut', {
+        labels: types, datasets: [{ data: types.map(t => leaveSum.byType[t]), backgroundColor: types.map((_, i) => PALETTE[i % PALETTE.length]) }]
+      });
+    }
   }
 
   // Globals used by inline onclick handlers; each reuses the portal's existing action, then refreshes.
