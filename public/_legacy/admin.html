@@ -2190,31 +2190,30 @@ async function claimSession(userId) {
     btn.disabled = true;
     btn.innerHTML = '<span class="btn-spinner"></span>Verifying…';
 
-    const { error } = await sb.functions.invoke("verify-login-code", {
-      body: { user_id: window.pendingUser.id, code: code }
-    });
-
-    if (error) {
-      errorBox.textContent = "Invalid or expired verification code.";
+    const fail = (msg) => {
+      errorBox.textContent = msg;
       errorBox.className = "verify-error show";
       btn.disabled = false;
       btn.innerHTML = 'Verify →';
-      return;
-    }
+    };
 
-    // Code confirmed — only now do we establish the real, persisted session.
+    // The verify function only accepts a signed-in caller (it checks THEIR code), but the session was
+    // dropped after the code was emailed. Sign in again first, then check the code with that session.
     const email = pendingLoginEmail;
     const password = pendingLoginPassword;
-    pendingLoginPassword = null; // clear from memory immediately, success or not
+    if (!email || !password) return fail("Session expired. Please go back and sign in again.");
 
     const { data: reAuthData, error: reAuthError } = await sb.auth.signInWithPassword({ email, password });
-    if (reAuthError || !reAuthData.user) {
-      errorBox.textContent = "Could not complete sign-in. Please try again.";
-      errorBox.className = "verify-error show";
-      btn.disabled = false;
-      btn.innerHTML = 'Verify →';
-      return;
+    if (reAuthError || !reAuthData.user) return fail("Could not complete sign-in. Please try again.");
+
+    const { data: vData, error } = await sb.functions.invoke("verify-login-code", { body: { code: code } });
+    if (error || !vData || vData.success !== true) {
+      await sb.auth.signOut();
+      return fail("Invalid or expired verification code.");
     }
+
+    // Code confirmed — the session is now the real, persisted one. Clear the password from memory.
+    pendingLoginPassword = null;
 
     checkTeamAccess(reAuthData.user, true);
   }
