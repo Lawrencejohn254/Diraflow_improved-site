@@ -65,13 +65,13 @@
   }
 
   /* ── AUTH SCREENS (login / signup / forgot / reset / verify) ── */
-  #login-screen, #signup-screen, #forgot-screen, #reset-screen, #verify-screen {
+  #login-screen, #signup-screen, #forgot-screen, #reset-screen, #verify-screen, #enroll-screen {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh; padding: 2rem; background: var(--bg);
   }
-  #signup-screen, #forgot-screen, #reset-screen, #verify-screen { display: none; }
+  #signup-screen, #forgot-screen, #reset-screen, #verify-screen, #enroll-screen { display: none; }
 
-  .login-card, .verify-card {
+  .login-card, .verify-card, .enroll-card {
     background: var(--card); color: var(--fg);
     border: 1px solid var(--border);
     box-shadow: 0 1px 3px rgba(17,24,39,.06);
@@ -80,7 +80,7 @@
     width: 100%;
     max-width: 420px;
   }
-  .login-logo, .verify-logo { display: flex; align-items: center; gap: .625rem; margin-bottom: 2rem; }
+  .login-logo, .verify-logo, .enroll-card .verify-logo { display: flex; align-items: center; gap: .625rem; margin-bottom: 2rem; }
   .login-logo img, .verify-logo img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
   .login-logo span, .verify-logo span { font-weight: 700; font-size: 1rem; }
   .login-label, .verify-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--primary); font-weight: 700; margin-bottom: 1.25rem; }
@@ -120,11 +120,11 @@
   .auth-links a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
   .auth-links a:hover { text-decoration: underline; }
 
-  .verify-card input {
+  .enroll-card input, .verify-card input {
     background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .75rem;
     font-family: inherit; font-size: 1rem; color: var(--fg); width: 100%;
   }
-  .verify-card input:focus { outline: none; border-color: var(--primary); }
+  .enroll-card input:focus, .verify-card input:focus { outline: none; border-color: var(--primary); }
 
   /* ── ADMIN SHELL ── */
   #admin-shell { display: none; min-height: 100vh; }
@@ -684,7 +684,7 @@ tbody tr.clickable:hover{ background:var(--bg2); }
 .profile-tab-btn.active{ background:var(--primary); }
 .modal{ border-radius:14px; }
 .login-card,.verify-card{ border-radius:16px; box-shadow:0 10px 30px rgba(16,24,40,.08); }
-#login-screen,#signup-screen,#forgot-screen,#reset-screen,#verify-screen{ background:linear-gradient(160deg,var(--primary-dim),var(--bg) 55%); }
+#login-screen,#signup-screen,#forgot-screen,#reset-screen,#verify-screen,#enroll-screen{ background:linear-gradient(160deg,var(--primary-dim),var(--bg) 55%); }
 
 /* MOBILE / TABLET: drawer sidebar */
 .sb-backdrop{ display:none; position:fixed; inset:0; background:rgba(17,24,39,.45); z-index:55; }
@@ -803,6 +803,18 @@ tbody tr:last-child td{ border-bottom:0; }
   .table-wrap table{ min-width:560px; }
 }
 
+/* PHASE5-MFA */
+.enroll-card{ max-width:460px; }
+.enroll-card .verify-label{ margin-bottom:.9rem; }
+.enroll-card h2{ margin-bottom:.6rem; }
+.mfa-help{ font-size:.84rem; color:var(--fg2); line-height:1.5; margin-bottom:1rem; }
+.mfa-qr{ display:flex; justify-content:center; margin:.25rem 0 1rem; }
+.mfa-qr img{ width:176px; height:176px; background:#fff; padding:8px; border:1px solid var(--border); border-radius:12px; }
+.mfa-secret{ display:block; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.82rem; letter-spacing:.06em; word-break:break-all;
+  background:var(--bg2); border:1px dashed var(--border); border-radius:8px; padding:.55rem .7rem; margin:.3rem 0 1rem; user-select:all; }
+.mfa-code-input{ text-align:center; letter-spacing:.5em; font-size:1.25rem !important; font-weight:700; }
+.mfa-alt{ margin-top:1rem; font-size:.8rem; text-align:center; color:var(--fg2); }
+.mfa-alt a{ color:var(--primary); font-weight:600; cursor:pointer; text-decoration:none; }
 </style>
 </head>
 <body>
@@ -914,13 +926,34 @@ tbody tr:last-child td{ border-bottom:0; }
   <div class="verify-card">
     <div class="verify-logo"><img src="/assets/logo.jpg"><span>Diraflow</span></div>
     <div class="verify-label">Security Verification</div>
-    <h2>Enter verification code</h2>
+    <h2>Enter authenticator code</h2>
+    <p class="mfa-help">Open your authenticator app (Google Authenticator, Microsoft Authenticator, Authy&hellip;) and enter the 6-digit code for Diraflow.</p>
     <div class="field">
-      <label>Verification code</label>
-      <input type="text" id="verification-code" maxlength="6" placeholder="Enter 6 digit code">
+      <label>6-digit code</label>
+      <input type="text" id="verification-code" class="mfa-code-input" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
     </div>
     <button class="btn-primary" id="verify-btn" onclick="verifyCode()">Verify →</button>
     <p class="verify-error" id="verify-error"></p>
+    <p class="mfa-alt">Wrong account? <a onclick="mfaCancel()">Sign out</a></p>
+  </div>
+</div>
+
+<div id="enroll-screen">
+  <div class="enroll-card">
+    <div class="verify-logo"><img src="/assets/logo.jpg"><span>Diraflow</span></div>
+    <div class="verify-label">Set up two-factor sign-in</div>
+    <h2>Scan with your authenticator app</h2>
+    <p class="mfa-help">Your role requires an authenticator app. Scan the QR code, or type the key in by hand, then enter the 6-digit code it shows.</p>
+    <div class="mfa-qr" id="mfa-qr"></div>
+    <label class="mfa-help" style="margin:0;">Can't scan? Enter this key:</label>
+    <code class="mfa-secret" id="mfa-secret">…</code>
+    <div class="field">
+      <label>6-digit code</label>
+      <input type="text" id="enroll-code" class="mfa-code-input" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
+    </div>
+    <button class="btn-primary" id="enroll-btn" onclick="confirmEnroll()">Confirm and sign in →</button>
+    <p class="verify-error" id="enroll-error"></p>
+    <p class="mfa-alt"><a onclick="mfaCancel()">Cancel and sign out</a></p>
   </div>
 </div>
 
@@ -1886,8 +1919,6 @@ tbody tr:last-child td{ border-bottom:0; }
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ── State ─────────────────────────────────────────────────────
-  let pendingLoginEmail = null;
-  let pendingLoginPassword = null;
   let currentUser   = null;
   let currentMember = null;   // row from team_members for the logged-in user
   let allApplications = [];
@@ -1927,6 +1958,13 @@ tbody tr:last-child td{ border-bottom:0; }
         localStorage.removeItem(ACTIVITY_KEY);
         return;
       }
+      if (await mfaRequiredFor(session.user.id)) {
+        const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (!aal || aal.currentLevel !== 'aal2') {
+          try { await startMfaStep(session.user); } catch (e) { await sb.auth.signOut(); }
+          return;
+        }
+      }
       checkTeamAccess(session.user);
     }
   }
@@ -1945,6 +1983,7 @@ function clearStoredSessionId() { localStorage.removeItem(SESSION_ID_KEY); }
     document.getElementById('forgot-screen').style.display = 'none';
     document.getElementById('reset-screen').style.display = 'none';
     document.getElementById('verify-screen').style.display = 'none';
+    document.getElementById('enroll-screen').style.display = 'none';
   }
 
   function showAuthScreen(name) {
@@ -1970,42 +2009,107 @@ function clearStoredSessionId() { localStorage.removeItem(SESSION_ID_KEY); }
 
     window.pendingUser = data.user;
 
-    const { data: mfaSetting } = await sb.from('site_settings').select('mfa_required_roles').eq('id', 1).single();
-    const { data: memberRow } = await sb.from('team_members').select('role').eq('id', data.user.id).single();
-    const mfaRequiredRoles = (mfaSetting && mfaSetting.mfa_required_roles) || ['admin', 'reviewer', 'viewer'];
-    window.pendingMfaRequired = memberRow ? mfaRequiredRoles.includes(memberRow.role) : true;
-
-    if (!window.pendingMfaRequired) {
+    const required = await mfaRequiredFor(data.user.id);
+    if (!required) {
       hideAllAuthScreens();
       checkTeamAccess(window.pendingUser, true);
       btn.disabled = false; btn.textContent = 'Sign in →';
       return;
     }
 
-    // Send the code while still authenticated — the function needs a valid session.
-    const { error: codeError } = await sb.functions.invoke("send-login-code", {
-      body: { userId: data.user.id, email: data.user.email }
-    });
-    if (codeError) {
-      errEl.textContent = "Could not send verification code.";
-      errEl.className = "login-err show";
-      btn.disabled = false; btn.textContent = 'Sign in →';
-      return;
+    try {
+      await startMfaStep(data.user);
+    } catch (e) {
+      errEl.textContent = 'Could not start two-factor sign-in: ' + (e && e.message ? e.message : e);
+      errEl.className = 'login-err show';
+      await sb.auth.signOut();
     }
-
-    // Code is sent — now drop the session immediately. Nobody is considered
-    // "logged in" until the code is actually verified. Credentials are held
-    // only in memory (never localStorage) so verifyCode() can re-establish
-    // the real session once the code checks out.
-    pendingLoginEmail = email;
-    pendingLoginPassword = password;
-    await sb.auth.signOut();
-
-    hideAllAuthScreens();
-    document.getElementById("verify-screen").style.display = "flex";
     btn.disabled = false; btn.textContent = 'Sign in →';
   }
 
+  // ── Two-factor (authenticator app / TOTP) ─────────────────────────────
+  // The password sign-in gives an "aal1" session. Verifying a TOTP code upgrades it to "aal2".
+  // Until then the dashboard is never shown. (Server-side enforcement: supabase/optional/enforce_aal2.sql.)
+  let mfaFactorId = null;
+
+  async function mfaRequiredFor(userId) {
+    const { data: setting } = await sb.from('site_settings').select('mfa_required_roles').eq('id', 1).maybeSingle();
+    const { data: member } = await sb.from('team_members').select('role').eq('id', userId).maybeSingle();
+    const roles = (setting && setting.mfa_required_roles) || ['admin', 'reviewer', 'viewer'];
+    return member ? roles.includes(member.role) : true;
+  }
+
+  async function startMfaStep(user) {
+    window.pendingUser = user;
+    const { data: aal, error: aalErr } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aalErr) throw aalErr;
+    if (aal.currentLevel === 'aal2') { hideAllAuthScreens(); checkTeamAccess(user, true); return; }
+
+    const { data: factors, error: fErr } = await sb.auth.mfa.listFactors();
+    if (fErr) throw fErr;
+    const verified = (factors.totp || [])[0];
+    if (verified) {
+      mfaFactorId = verified.id;
+      document.getElementById('verification-code').value = '';
+      document.getElementById('verify-error').className = 'verify-error';
+      hideAllAuthScreens();
+      document.getElementById('verify-screen').style.display = 'flex';
+      document.getElementById('verification-code').focus();
+      return;
+    }
+    await beginEnroll();
+  }
+
+  async function beginEnroll() {
+    // Remove half-finished enrolments from an earlier attempt so the name can be reused.
+    const { data: all } = await sb.auth.mfa.listFactors();
+    for (const f of ((all && all.all) || [])) {
+      if (f.status !== 'verified') await sb.auth.mfa.unenroll({ factorId: f.id });
+    }
+    const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Diraflow ' + Date.now() });
+    if (error) throw error;
+    mfaFactorId = data.id;
+    document.getElementById('mfa-qr').innerHTML = '<img alt="QR code" src="' + data.totp.qr_code + '">';
+    document.getElementById('mfa-secret').textContent = data.totp.secret;
+    document.getElementById('enroll-code').value = '';
+    document.getElementById('enroll-error').className = 'verify-error';
+    hideAllAuthScreens();
+    document.getElementById('enroll-screen').style.display = 'flex';
+    document.getElementById('enroll-code').focus();
+  }
+
+  async function mfaChallengeVerify(code) {
+    const { data: ch, error: cErr } = await sb.auth.mfa.challenge({ factorId: mfaFactorId });
+    if (cErr) throw cErr;
+    const { error: vErr } = await sb.auth.mfa.verify({ factorId: mfaFactorId, challengeId: ch.id, code });
+    if (vErr) throw vErr;
+  }
+
+  async function confirmEnroll() {
+    const code = document.getElementById('enroll-code').value.trim();
+    const err = document.getElementById('enroll-error'), btn = document.getElementById('enroll-btn');
+    err.className = 'verify-error';
+    if (!/^\d{6}$/.test(code)) { err.textContent = 'Enter the 6-digit code from your app.'; err.className = 'verify-error show'; return; }
+    btn.disabled = true; btn.textContent = 'Checking…';
+    try {
+      await mfaChallengeVerify(code);
+    } catch (e) {
+      err.textContent = 'That code did not match. Check the time on your phone and try the next code.';
+      err.className = 'verify-error show';
+      btn.disabled = false; btn.textContent = 'Confirm and sign in →';
+      return;
+    }
+    btn.disabled = false; btn.textContent = 'Confirm and sign in →';
+    const { data: { user } } = await sb.auth.getUser();
+    checkTeamAccess(user || window.pendingUser, true);
+  }
+
+  async function mfaCancel() {
+    await sb.auth.signOut();
+    mfaFactorId = null;
+    hideAllAuthScreens();
+    document.getElementById('login-screen').style.display = 'flex';
+  }
 
   // Called only on a genuinely fresh sign-in (not a page-refresh session restore).
 // Generates a new session id, saves it locally, writes it to the DB (marking this
@@ -2180,42 +2284,26 @@ async function claimSession(userId) {
     const errorBox = document.getElementById("verify-error");
     const btn = document.getElementById("verify-btn");
     errorBox.className = "verify-error";
-
-    if (!code) {
-      errorBox.textContent = "Enter verification code.";
+    if (!/^\d{6}$/.test(code)) {
+      errorBox.textContent = "Enter the 6-digit code from your authenticator app.";
       errorBox.className = "verify-error show";
       return;
     }
-
     btn.disabled = true;
     btn.innerHTML = '<span class="btn-spinner"></span>Verifying…';
-
-    const fail = (msg) => {
-      errorBox.textContent = msg;
+    try {
+      await mfaChallengeVerify(code);
+    } catch (e) {
+      errorBox.textContent = "That code is not valid. Wait for the next code and try again.";
       errorBox.className = "verify-error show";
       btn.disabled = false;
       btn.innerHTML = 'Verify →';
-    };
-
-    // The verify function only accepts a signed-in caller (it checks THEIR code), but the session was
-    // dropped after the code was emailed. Sign in again first, then check the code with that session.
-    const email = pendingLoginEmail;
-    const password = pendingLoginPassword;
-    if (!email || !password) return fail("Session expired. Please go back and sign in again.");
-
-    const { data: reAuthData, error: reAuthError } = await sb.auth.signInWithPassword({ email, password });
-    if (reAuthError || !reAuthData.user) return fail("Could not complete sign-in. Please try again.");
-
-    const { data: vData, error } = await sb.functions.invoke("verify-login-code", { body: { code: code } });
-    if (error || !vData || vData.success !== true) {
-      await sb.auth.signOut();
-      return fail("Invalid or expired verification code.");
+      return;
     }
-
-    // Code confirmed — the session is now the real, persisted one. Clear the password from memory.
-    pendingLoginPassword = null;
-
-    checkTeamAccess(reAuthData.user, true);
+    btn.disabled = false;
+    btn.innerHTML = 'Verify →';
+    const { data: { user } } = await sb.auth.getUser();
+    checkTeamAccess(user || window.pendingUser, true);
   }
 
   async function doLogout(reason) {
@@ -2237,6 +2325,7 @@ async function claimSession(userId) {
 
   document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   document.getElementById('verification-code').addEventListener('keydown', e => { if (e.key === 'Enter') verifyCode(); });
+  document.getElementById('enroll-code').addEventListener('keydown', e => { if (e.key === 'Enter') confirmEnroll(); });
   document.getElementById('signup-password2').addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
   document.getElementById('forgot-email').addEventListener('keydown', e => { if (e.key === 'Enter') doForgotPassword(); });
   document.getElementById('reset-password2').addEventListener('keydown', e => { if (e.key === 'Enter') doResetPassword(); });
