@@ -605,7 +605,8 @@
   --radius:8px; --radius-lg:12px; --sbw:252px;
   --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.04);
 }
-[data-theme="dark"]{ --primary-dim:#3A2518; --teal-dim:#16333A; --bg:#0F1115; --bg2:#161920; }
+[data-theme="dark"]{ --primary-dim:#3A2518; --teal-dim:#16333A; --bg:#0F1115; --bg2:#161920;
+  --border:#2A2E38; --fg:#E5E7EB; --fg2:#9CA3AF; --shadow:0 1px 2px rgba(0,0,0,.4); }
 body{ font-family:'Plus Jakarta Sans','Sora',sans-serif; background:var(--bg); }
 
 /* SIDEBAR (the old tab bar) */
@@ -757,6 +758,50 @@ tbody tr.clickable:hover{ background:var(--bg2); }
 #tab-btn-reports{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M14%203H6a2%202%200%200%200-2%202v14a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V9z'/%3E%3Cpath%20d='M8%2017v-3M12%2017v-6M16%2017v-4'/%3E%3C/svg%3E");order:34;}
 #tab-btn-security{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%203%204%206v6c0%205%203.4%208.4%208%209%204.6-.6%208-4%208-9V6z'/%3E%3C/svg%3E");order:35;}
 #tab-btn-syshealth{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='3'%20y='4'%20width='18'%20height='7'%20rx='2'/%3E%3Crect%20x='3'%20y='13'%20width='18'%20height='7'%20rx='2'/%3E%3Cpath%20d='M7%207.5h.01M7%2016.5h.01'/%3E%3C/svg%3E");order:36;}
+
+/* PHASE4-SECTION-PAGES: shared polish so every tab matches the dashboard */
+/* Stat rows: fit 6-7 cards on one line on desktop instead of leaving an orphan */
+@media (min-width:901px){ .stats-row{ grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:.75rem; } }
+.stat-card .stat-label{ line-height:1.3; }
+/* Toolbar: one tidy card, equal-height controls, search grows, native arrows replaced */
+.filters-row{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow);
+  padding:.7rem; gap:.5rem; }
+.filter-select,.filter-input,.btn-refresh,.btn-filters-toggle{ height:38px; font-size:.82rem; }
+.filters-row:not(:has(> :nth-child(2))){ background:none; border:0; box-shadow:none; padding:0; }
+.filter-input{ flex:1 1 220px; min-width:180px; background:var(--bg2); border-color:transparent; cursor:text; }
+.filter-input:focus{ background:var(--card); }
+select.filter-select,.assign-row select,.field select,.table-wrap select,.section-header select{
+  -webkit-appearance:none; appearance:none; padding-right:2rem; cursor:pointer;
+  background-color:var(--bg2); border:1px solid transparent; border-radius:8px; color:var(--fg); font-family:inherit;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right .65rem center; }
+select.filter-select:focus,.table-wrap select:focus,.section-header select:focus{ outline:none; border-color:var(--primary); background-color:var(--card); }
+.table-wrap select{ padding:.35rem 1.9rem .35rem .6rem; font-size:.78rem; font-weight:600; height:auto; }
+.btn-refresh:hover,.btn-filters-toggle:hover{ background:var(--primary-dim); }
+/* Tables: keep short values on one line, scroll sideways instead of clipping, sticky header on long lists */
+.table-wrap{ overflow-x:auto; }
+.table-wrap td,.table-wrap th{ vertical-align:middle; }
+.table-wrap td{ white-space:nowrap; }
+.table-wrap td.wrap,.table-wrap td:has(.cell-wrap){ white-space:normal; }
+.table-wrap table{ min-width:640px; }
+tbody tr{ transition:background .12s; }
+tbody tr:hover{ background:var(--bg2); }
+tbody tr:last-child td{ border-bottom:0; }
+/* Section headings: match dashboard card titles; refresh/action buttons sit on the same row */
+.section-header{ margin-bottom:.9rem; }
+.section-header h2{ font-size:1.05rem; }
+.section-title,.panel-subtitle{ font-size:.95rem; font-weight:800; }
+/* Empty states */
+.empty-state,td.empty,.table-empty{ color:var(--fg2); font-size:.85rem; padding:2.2rem 1rem; text-align:center; }
+/* Role / status / action buttons inside tables */
+.table-wrap button{ font-family:inherit; }
+.table-wrap button:not(.dash-btn){ border-radius:8px; font-size:.76rem; font-weight:700; }
+/* Phone: toolbar stacks, tables scroll inside their card, controls are touch-sized */
+@media (max-width:900px){
+  .filters-row{ flex-direction:column; align-items:stretch; }
+  .filter-select,.filter-input,.btn-refresh,.btn-filters-toggle{ height:42px; width:100%; }
+  .table-wrap table{ min-width:560px; }
+}
 
 </style>
 </head>
@@ -7475,6 +7520,8 @@ let mpeCurrentId = null;
   window.dashToggleTask = async (id, done) => { await toggleTaskComplete(id, done); renderDashboard(); };
 })();
 // DIRAFLOW-REDESIGN
+  // Charts inherit the page font (they defaulted to a serif face) and a readable tick colour.
+  if (window.Chart) { Chart.defaults.font.family = "'Plus Jakarta Sans','Sora',sans-serif"; Chart.defaults.font.size = 11; }
   const PAGE_META = {
     dashboard:['Dashboard','Overview'], applications:['Applications','Recruitment'], talent:['Talent Pool','Recruitment'], pipeline:['Pipeline','Recruitment'],
     tasks:['Tasks','Workspace'], leave:['Leave','Workspace'], calendar:['Calendar','Workspace'], insights:['Insights','Workspace'],
