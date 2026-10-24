@@ -27,13 +27,31 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    // Admin dashboard is served unchanged until it is rewritten as React (Phase 3).
-    return { beforeFiles: [{ source: '/admin', destination: '/_legacy/admin.html' }], afterFiles: [], fallback: [] };
+    // /admin is the React shell. The original static admin page still does the work for tabs that have not been
+    // migrated yet: the shell loads it in a frame at /admin-legacy?embed=1 (and it works standalone at that URL too).
+    return { beforeFiles: [{ source: '/admin-legacy', destination: '/_legacy/admin.html' }], afterFiles: [], fallback: [] };
   },
   async headers() {
     return [
     {
       // Internal back-office: never indexed, never cached by browsers/CDNs/proxies.
+      source: '/admin/:path*',
+      headers: [
+        { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+        { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+      ],
+    },
+    {
+      // Framed only by the shell on the same origin.
+      source: '/admin-legacy',
+      headers: [
+        { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+        { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      ],
+    },
+    {
       source: '/admin',
       headers: [
         { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },

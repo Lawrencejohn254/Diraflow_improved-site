@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.jpg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+<script>try{if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embed');}catch(e){}</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
@@ -802,6 +803,13 @@ tbody tr:last-child td{ border-bottom:0; }
   .filter-select,.filter-input,.btn-refresh,.btn-filters-toggle{ height:42px; width:100%; }
   .table-wrap table{ min-width:560px; }
 }
+
+/* PHASE6-EMBED: when this page runs inside the new React admin shell, the shell provides the sidebar */
+.embed .tabs-bar,.embed .sb-backdrop,.embed .menu-toggle{ display:none !important; }
+.embed .topbar,.embed .main{ margin-left:0 !important; }
+.embed #announcements-banner-wrap{ margin-left:0 !important; }
+@media (max-width:900px){ .embed .topbar-left{ padding-left:46px; } }
+.embed #login-screen,.embed #signup-screen,.embed #forgot-screen,.embed #reset-screen,.embed #verify-screen,.embed #enroll-screen{ min-height:100vh; }
 
 /* PHASE5-MFA */
 .enroll-card{ max-width:460px; }
@@ -2420,7 +2428,10 @@ window.addEventListener('beforeunload', () => {
     loadAnnouncements();
     applyRoleSessionTimeout();
 
-    switchTab('dashboard');
+    let startTab = 'dashboard';
+    try { startTab = new URLSearchParams(location.search).get('tab') || 'dashboard'; } catch (e) {}
+    if (!document.getElementById('panel-' + startTab)) startTab = 'dashboard';
+    switchTab(startTab);
   }
 
   // ══════════════════════ MY PROFILE (any role, including admin) ══════════════════════
