@@ -89,6 +89,18 @@ export default function AdminShell({ member, onSignOut }: { member: Member; onSi
     return () => clearInterval(t);
   }, []);
 
+  /** Application review panel still lives in the original page: open that tab, then the panel. */
+  function openApp(id: string) {
+    router.push('/admin/applications');
+    let tries = 0;
+    const t = setInterval(() => {
+      tries++;
+      const w = legacyWin(frameRef.current) as (Window & { openAppPanel?: (id: string) => void }) | null;
+      if (legacyReady(frameRef.current) && w?.openAppPanel) { setTimeout(() => w.openAppPanel!(id), 250); clearInterval(t); }
+      else if (tries > 60) clearInterval(t);
+    }, 150);
+  }
+
   /** Features that still live in the original page (profile, notifications, search) open there. */
   function viaLegacy(fn: 'openProfileModal' | 'toggleNotifPanel' | 'search') {
     router.push('/admin/' + lastLegacyTab.current);
@@ -137,7 +149,7 @@ export default function AdminShell({ member, onSignOut }: { member: Member; onSi
 
         {!native && <button className="adm-icon adm-fab" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">☰</button>}
 
-        {native && <main className="adm-main"><NativeView tab={tab} member={member} /></main>}
+        {native && <main className="adm-main"><NativeView tab={tab} member={member} go={id => router.push('/admin/' + id)} openApp={openApp} /></main>}
 
         {/* The original admin page: always loaded (it keeps time tracking, notifications and the not-yet-migrated tabs
             running); shown whenever the chosen tab has not been moved to React. */}

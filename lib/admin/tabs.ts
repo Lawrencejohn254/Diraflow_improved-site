@@ -8,7 +8,7 @@ export type TabId =
 export type TabDef = { id: TabId; label: string; group: 'Overview' | 'Recruitment' | 'Workspace' | 'Administration'; adminOnly?: boolean; native?: boolean };
 
 export const TABS: TabDef[] = [
-  { id: 'dashboard', label: 'Dashboard', group: 'Overview' },
+  { id: 'dashboard', label: 'Dashboard', group: 'Overview', native: true },
   { id: 'applications', label: 'Applications', group: 'Recruitment' },
   { id: 'talent', label: 'Talent Pool', group: 'Recruitment' },
   { id: 'pipeline', label: 'Pipeline', group: 'Recruitment' },
